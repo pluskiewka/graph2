@@ -1,7 +1,12 @@
 package main;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Random;
+import java.util.Scanner;
 
 public class Main {
 	private Collection<Vertex> vertexes;
@@ -12,7 +17,7 @@ public class Main {
 	
 	public Main() {
 		this.vertexes = new LinkedList<Vertex>();
-		this.edges = new LinkedList<Edge>();
+		this.edges = new HashSet<Edge>();
 	}
 	
 	public Vertex newVertex() {
@@ -31,8 +36,16 @@ public class Main {
 		} else {
 			if(level < minEdge.level) {
 				minEdge = e;
+				for(Edge t : edges) {
+					t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+				}
 			} else if(level > maxEdge.level) {
 				maxEdge = e;
+				for(Edge t : edges) {
+					t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+				}
+			} else {
+				e.color = (int)(255.0*((double)(e.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
 			}
 		}
 		return e;
@@ -44,13 +57,18 @@ public class Main {
 		
 		if(minEdge.equals(e) && level < e.level) {
 			e.level = level;
+			e.color = (int)(255.0*((double)(e.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
 		} else if(maxEdge.equals(e) && level > e.level) {
 			e.level = level;
+			e.color = (int)(255.0*((double)(e.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
 		} else if(minEdge.equals(e) && level > e.level){
 			e.level = level;
 			for(Edge t : edges) {
 				if(t.level < minEdge.level)
 					minEdge = t;
+			}
+			for(Edge t : edges) {
+				t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
 			}
 		} else if(maxEdge.equals(e) && level < e.level) {
 			e.level = level;
@@ -58,18 +76,87 @@ public class Main {
 				if(t.level > maxEdge.level)
 					maxEdge = t;
 			}
+			for(Edge t : edges) {
+				t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+			}
 		} else if(level > maxEdge.level) {
 			e.level = level;
-			maxEdge =e;
+			maxEdge = e;
+			for(Edge t : edges) {
+				t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+			}
 		} else if(level < minEdge.level) {
 			e.level = level;
 			minEdge = e;
+			for(Edge t : edges) {
+				t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+			}
 		} else {
 			e.level = level;
+			e.color = (int)(255.0*((double)(e.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
 		}
 	}
 	
 	public static void main(String []args) {
+		Main graph = new Main();
 		
+		java.util.Scanner sc = new Scanner(System.in);
+		
+		System.err.println("First, new vertexes...");
+		while(!sc.nextLine().equals(""));
+		
+		long p1 = System.nanoTime();
+		for(int i=0; i<Integer.parseInt(args[0]); i++) {
+			graph.newVertex();
+		}
+		long p2 = System.nanoTime();
+
+		Random rand = new Random(new Date().getTime());
+		
+		System.err.println("Time: "+Double.toString((double)(p2-p1)/1000000000.0)+"\nNext, new edges...");
+		while(!sc.nextLine().equals(""));
+		
+		p1 = System.nanoTime();
+		for(Vertex v1 : graph.vertexes) {
+			for(Vertex v2 : graph.vertexes) {
+				graph.newEdge(v1, v2, rand.nextInt(200)-100);
+			}
+		}
+        p2 = System.nanoTime();
+        
+		System.out.println("Edges.size() = "+graph.edges.size()+"\nTime: "+Double.toString((double)(p2-p1)/1000000000.0)+"\nNext, set new level....");
+		while(!sc.nextLine().equals(""));
+		
+		p1 = System.nanoTime();
+		for(Edge e : graph.edges) {
+			graph.setLevel(e, rand.nextInt(400)-200);
+		}
+		p2 = System.nanoTime();
+		
+		System.out.println("Time: "+Double.toString((double)(p2-p1)/1000000000.0)+"\nNext, testing....");
+		while(!sc.nextLine().equals(""));
+		
+		int min, max;
+		Iterator<Edge> it = graph.edges.iterator();
+		
+		p1 = System.nanoTime();
+		if(it.hasNext()) {
+			Edge e = it.next();
+			min = e.level;
+			max = e.level;
+			while(it.hasNext()) {
+				e = it.next();
+				if(e.level < min)
+					min = e.level;
+				else if(e.level > max)
+					max = e.level;
+			}
+			
+			for(Edge t : graph.edges) {
+				assert(t.color == (int)(255.0*(double)(t.level - min)/(double)(max-min)));
+			}
+		}
+		p2 = System.nanoTime();
+		System.out.println("Time: "+Double.toString((double)(p2-p1)/1000000000.0));
 	}
 }

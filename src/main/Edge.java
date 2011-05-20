@@ -1,9 +1,7 @@
 package main;
 
 import java.io.Serializable;
-import org.objectweb.proactive.extensions.annotation.ActiveObject;
 
-@ActiveObject
 public class Edge implements Serializable {
 	private static final long serialVersionUID = -6302028332002939511L;
 	
@@ -17,7 +15,7 @@ public class Edge implements Serializable {
 	
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || (obj instanceof Edge &&  ((Edge)obj).v1.equals(this.v1) && ((Edge)obj).v2.equals(this.v2));
+		return obj == this || (obj instanceof Edge && ((Edge)obj).v1.equals(this.v1) && ((Edge)obj).v2.equals(this.v2));
 	}
 	
 	@Override

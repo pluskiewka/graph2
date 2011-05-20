@@ -1,9 +1,7 @@
 package main;
 
 import java.io.Serializable;
-import org.objectweb.proactive.extensions.annotation.ActiveObject;
 
-@ActiveObject
 public class Vertex implements Serializable {
 	private static final long serialVersionUID = -6300664513616426780L;
 	

@@ -26,6 +26,10 @@ public class Main {
 		return v;
 	}
 	
+	private int color(int level) {
+		return (int)(255.0*((double)(level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+	}
+	
 	public Edge newEdge(Vertex v1, Vertex v2, int level) {
 		Edge e = new Edge(v1, v2);
 		e.level = level;
@@ -36,16 +40,24 @@ public class Main {
 		} else {
 			if(level < minEdge.level) {
 				minEdge = e;
+//				Collection[] colls = new LinkedList[4];
+//				for(int i=0; i<4; i++)
+//					colls[i] = new LinkedList<Edge>();
+//				
+//				int i = 0;
+//				for(Edge t : edges) {
+//					colls[(i++)%4].add(t);
+//				}
 				for(Edge t : edges) {
-					t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+					t.color = color(t.level);
 				}
 			} else if(level > maxEdge.level) {
 				maxEdge = e;
 				for(Edge t : edges) {
-					t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+					t.color = color(t.level);
 				}
 			} else {
-				e.color = (int)(255.0*((double)(e.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+				e.color = color(e.level);
 			}
 		}
 		return e;
@@ -57,10 +69,10 @@ public class Main {
 		
 		if(minEdge.equals(e) && level < e.level) {
 			e.level = level;
-			e.color = (int)(255.0*((double)(e.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+			e.color = color(e.level);
 		} else if(maxEdge.equals(e) && level > e.level) {
 			e.level = level;
-			e.color = (int)(255.0*((double)(e.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+			e.color = color(e.level);
 		} else if(minEdge.equals(e) && level > e.level){
 			e.level = level;
 			for(Edge t : edges) {
@@ -68,7 +80,7 @@ public class Main {
 					minEdge = t;
 			}
 			for(Edge t : edges) {
-				t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+				t.color = color(t.level);
 			}
 		} else if(maxEdge.equals(e) && level < e.level) {
 			e.level = level;
@@ -77,23 +89,23 @@ public class Main {
 					maxEdge = t;
 			}
 			for(Edge t : edges) {
-				t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+				t.color = color(t.level);
 			}
 		} else if(level > maxEdge.level) {
 			e.level = level;
 			maxEdge = e;
 			for(Edge t : edges) {
-				t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+				t.color = color(t.level);
 			}
 		} else if(level < minEdge.level) {
 			e.level = level;
 			minEdge = e;
 			for(Edge t : edges) {
-				t.color = (int)(255.0*((double)(t.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+				t.color = color(t.level);
 			}
 		} else {
 			e.level = level;
-			e.color = (int)(255.0*((double)(e.level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
+			e.color = color(e.level);
 		}
 	}
 	
@@ -142,7 +154,7 @@ public class Main {
 		p1 = System.nanoTime();
 		if(it.hasNext()) {
 			Edge e = it.next();
-			min = e.level;
+			min = e.level; 
 			max = e.level;
 			while(it.hasNext()) {
 				e = it.next();

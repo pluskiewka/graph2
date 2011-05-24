@@ -2,8 +2,6 @@ package main;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
@@ -28,38 +26,66 @@ public class Main {
 		return (int)(255.0*((double)(level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
 	}
 	
+	private void computeColor() {
+		for(final Vertex v : vertexes) {
+			new Thread(new Runnable(){
+				@Override
+				public void run() {
+					for(Edge t : v.edges) {
+						t.color = color(t.level);
+					}
+				}
+			}).start();
+		}
+	}
+	
+	private void computeMin() {
+		for(final Vertex v : vertexes) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					for(Edge t : v.edges) {
+						synchronized(minEdge) {
+							if(t.level < minEdge.level)
+								minEdge = t;
+						}
+					}
+				}
+			}).start();
+		}
+	}
+	
+	private void computeMax() {
+		for(final Vertex v : vertexes) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					for(Edge t : v.edges) {
+						synchronized(maxEdge) {
+							if(t.level > maxEdge.level)
+								maxEdge = t;
+						}
+					}
+				}
+			}).start();
+		}
+	}
+	
 	public Edge newEdge(Vertex v1, Vertex v2, int level) {
 		Edge e = new Edge(v1, v2);
 		e.level = level;
 		v1.edges.add(e);
+		
 		if(minEdge == null && maxEdge == null) {
 			minEdge = e;
 			maxEdge = e;
 		} else {
 			if(level < minEdge.level) {
 				minEdge = e;
-				for(final Vertex v : vertexes) {
-					new Thread(new Runnable(){
-						@Override
-						public void run() {
-							for(Edge t : v.edges) {
-								t.color = color(t.level);
-							}
-						}
-					}).start();
-				}
+				computeColor();
 			} else if(level > maxEdge.level) {
 				maxEdge = e;
-				for(final Vertex v : vertexes) {
-					new Thread(new Runnable(){
-						@Override
-						public void run() {
-							for(Edge t : v.edges) {
-								t.color = color(t.level);
-							}
-						}
-					}).start();
-				}
+				computeColor();
 			} else {
 				e.color = color(e.level);
 			}
@@ -71,88 +97,25 @@ public class Main {
 		if(e.level == level)
 			return;
 		
-		if(minEdge.equals(e) && level < e.level) {
-			e.level = level;
-			e.color = color(e.level);
-		} else if(maxEdge.equals(e) && level > e.level) {
+		if((minEdge.equals(e) && level < e.level) || (maxEdge.equals(e) && level > e.level)) {
 			e.level = level;
 			e.color = color(e.level);
 		} else if(minEdge.equals(e) && level > e.level){
 			e.level = level;
-			for(final Vertex v : vertexes) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						for(Edge t : v.edges) {
-							synchronized(minEdge) {
-								if(t.level < minEdge.level)
-									minEdge = t;
-							}
-						}
-					}
-				}).start();
-			}
-			for(final Vertex v : vertexes) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						for(Edge t : v.edges) {
-							t.color = color(t.level);
-						}
-					}
-				}).start();
-			}
+			computeMin();
+			computeColor();
 		} else if(maxEdge.equals(e) && level < e.level) {
 			e.level = level;
-			for(final Vertex v : vertexes) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						for(Edge t : v.edges) {
-							synchronized(maxEdge) {
-								if(t.level > maxEdge.level)
-									maxEdge = t;
-							}
-						}
-					}
-				}).start();
-			}
-			for(final Vertex v : vertexes) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						for(Edge t : v.edges) {
-							t.color = color(t.level);
-						}
-					}
-				}).start();
-			}
+			computeMax();
+			computeColor();
 		} else if(level > maxEdge.level) {
 			e.level = level;
 			maxEdge = e;
-			for(final Vertex v : vertexes) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						for(Edge t : v.edges) {
-							t.color = color(t.level);
-						}
-					}
-				}).start();
-			}
+			computeColor();
 		} else if(level < minEdge.level) {
 			e.level = level;
 			minEdge = e;
-			for(final Vertex v : vertexes) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						for(Edge t : v.edges) {
-							t.color = color(t.level);
-						}
-					}
-				}).start();
-			}
+			computeColor();
 		} else {
 			e.level = level;
 			e.color = color(e.level);

@@ -10,14 +10,12 @@ import java.util.Scanner;
 
 public class Main {
 	private Collection<Vertex> vertexes;
-	private Collection<Edge> edges;
 	private Edge minEdge, maxEdge;
 	
 	private int next = 0;
 	
 	public Main() {
 		this.vertexes = new LinkedList<Vertex>();
-		this.edges = new HashSet<Edge>();
 	}
 	
 	public Vertex newVertex() {
@@ -33,28 +31,34 @@ public class Main {
 	public Edge newEdge(Vertex v1, Vertex v2, int level) {
 		Edge e = new Edge(v1, v2);
 		e.level = level;
-		edges.add(e);
+		v1.edges.add(e);
 		if(minEdge == null && maxEdge == null) {
 			minEdge = e;
 			maxEdge = e;
 		} else {
 			if(level < minEdge.level) {
 				minEdge = e;
-//				Collection[] colls = new LinkedList[4];
-//				for(int i=0; i<4; i++)
-//					colls[i] = new LinkedList<Edge>();
-//				
-//				int i = 0;
-//				for(Edge t : edges) {
-//					colls[(i++)%4].add(t);
-//				}
-				for(Edge t : edges) {
-					t.color = color(t.level);
+				for(final Vertex v : vertexes) {
+					new Thread(new Runnable(){
+						@Override
+						public void run() {
+							for(Edge t : v.edges) {
+								t.color = color(t.level);
+							}
+						}
+					}).start();
 				}
 			} else if(level > maxEdge.level) {
 				maxEdge = e;
-				for(Edge t : edges) {
-					t.color = color(t.level);
+				for(final Vertex v : vertexes) {
+					new Thread(new Runnable(){
+						@Override
+						public void run() {
+							for(Edge t : v.edges) {
+								t.color = color(t.level);
+							}
+						}
+					}).start();
 				}
 			} else {
 				e.color = color(e.level);
@@ -75,33 +79,79 @@ public class Main {
 			e.color = color(e.level);
 		} else if(minEdge.equals(e) && level > e.level){
 			e.level = level;
-			for(Edge t : edges) {
-				if(t.level < minEdge.level)
-					minEdge = t;
+			for(final Vertex v : vertexes) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						for(Edge t : v.edges) {
+							synchronized(minEdge) {
+								if(t.level < minEdge.level)
+									minEdge = t;
+							}
+						}
+					}
+				}).start();
 			}
-			for(Edge t : edges) {
-				t.color = color(t.level);
+			for(final Vertex v : vertexes) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						for(Edge t : v.edges) {
+							t.color = color(t.level);
+						}
+					}
+				}).start();
 			}
 		} else if(maxEdge.equals(e) && level < e.level) {
 			e.level = level;
-			for(Edge t : edges) {
-				if(t.level > maxEdge.level)
-					maxEdge = t;
+			for(final Vertex v : vertexes) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						for(Edge t : v.edges) {
+							synchronized(maxEdge) {
+								if(t.level > maxEdge.level)
+									maxEdge = t;
+							}
+						}
+					}
+				}).start();
 			}
-			for(Edge t : edges) {
-				t.color = color(t.level);
+			for(final Vertex v : vertexes) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						for(Edge t : v.edges) {
+							t.color = color(t.level);
+						}
+					}
+				}).start();
 			}
 		} else if(level > maxEdge.level) {
 			e.level = level;
 			maxEdge = e;
-			for(Edge t : edges) {
-				t.color = color(t.level);
+			for(final Vertex v : vertexes) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						for(Edge t : v.edges) {
+							t.color = color(t.level);
+						}
+					}
+				}).start();
 			}
 		} else if(level < minEdge.level) {
 			e.level = level;
 			minEdge = e;
-			for(Edge t : edges) {
-				t.color = color(t.level);
+			for(final Vertex v : vertexes) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						for(Edge t : v.edges) {
+							t.color = color(t.level);
+						}
+					}
+				}).start();
 			}
 		} else {
 			e.level = level;
@@ -136,36 +186,35 @@ public class Main {
 		}
         p2 = System.nanoTime();
         
-		System.out.println("Edges.size() = "+graph.edges.size()+"\nTime: "+Double.toString((double)(p2-p1)/1000000000.0)+"\nNext, set new level....");
+		System.out.println("Time: "+Double.toString((double)(p2-p1)/1000000000.0)+"\nNext, set new level....");
 		while(!sc.nextLine().equals(""));
 		
 		p1 = System.nanoTime();
-		for(Edge e : graph.edges) {
-			graph.setLevel(e, rand.nextInt(400)-200);
+		for(Vertex v : graph.vertexes) {
+			for(Edge e : v.edges) {
+				graph.setLevel(e, rand.nextInt(400)-200);
+			}
 		}
 		p2 = System.nanoTime();
 		
 		System.out.println("Time: "+Double.toString((double)(p2-p1)/1000000000.0)+"\nNext, testing....");
 		while(!sc.nextLine().equals(""));
 		
-		int min, max;
-		Iterator<Edge> it = graph.edges.iterator();
+		Integer min = null, max = null;
 		
 		p1 = System.nanoTime();
-		if(it.hasNext()) {
-			Edge e = it.next();
-			min = e.level; 
-			max = e.level;
-			while(it.hasNext()) {
-				e = it.next();
-				if(e.level < min)
+		for(Vertex v : graph.vertexes) {
+			for(Edge e : v.edges) {
+				if((min != null && e.level < min) || (min == null))
 					min = e.level;
-				else if(e.level > max)
+				else if((max != null && e.level > max) || (max == null))
 					max = e.level;
 			}
-			
-			for(Edge t : graph.edges) {
-				assert(t.color == (int)(255.0*(double)(t.level - min)/(double)(max-min)));
+		}
+		
+		for(Vertex v : graph.vertexes) {
+			for(Edge e : v.edges) {
+				assert(e.color == (int)(255.0*(double)(e.level - min)/(double)(max-min)));
 			}
 		}
 		p2 = System.nanoTime();

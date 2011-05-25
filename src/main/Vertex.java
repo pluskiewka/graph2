@@ -4,11 +4,15 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.objectweb.proactive.api.PAActiveObject;
+import org.objectweb.proactive.extensions.annotation.ActiveObject;
+
+@ActiveObject
 public class Vertex implements Serializable {
 	private static final long serialVersionUID = -6300664513616426780L;
 	
 	public final int id;
-	private Graph graph; 
+	public final Graph graph; 
 	Collection<Edge> edges;
 	
 	public Vertex(Graph graph, int id) {
@@ -37,7 +41,7 @@ public class Vertex implements Serializable {
 			@Override
 			public void run() {
 				for(Edge t : edges) {
-					t.color = graph.color(t.level);
+					t.computeColor();
 				}
 			}
 		}).start();
@@ -66,7 +70,7 @@ public class Vertex implements Serializable {
 	}
 	
 	public Edge newEdge(Vertex v2) {
-		Edge edge = new Edge(this, v2);
+		Edge edge = new Edge(graph, this, v2);
 		edges.add(edge);
 		return edge;
 	}

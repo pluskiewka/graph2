@@ -22,4 +22,9 @@ public class Edge implements Serializable {
 	public int hashCode() {
 		return this.v1.id * this.v2.id;
 	}
+	
+	@Override
+	public String toString() {
+		return "Edge: " + v1 + " " + v2 + " level: " + level + " color: " + color;
+	}
 }

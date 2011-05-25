@@ -16,65 +16,50 @@ public class Main {
 		this.vertexes = new LinkedList<Vertex>();
 	}
 	
-	public Vertex newVertex() {
-		Vertex v = new Vertex(next++);
-		vertexes.add(v);
-		return v;
-	}
-	
-	private int color(int level) {
+	public int color(int level) {
 		return (int)(255.0*((double)(level - minEdge.level)/(double)(maxEdge.level - minEdge.level)));
 	}
 	
 	private void computeColor() {
 		for(final Vertex v : vertexes) {
-			new Thread(new Runnable(){
-				@Override
-				public void run() {
-					for(Edge t : v.edges) {
-						t.color = color(t.level);
-					}
-				}
-			}).start();
+			v.computeColor();
 		}
 	}
 	
 	private void computeMin() {
 		for(final Vertex v : vertexes) {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					for(Edge t : v.edges) {
-						synchronized(minEdge) {
-							if(t.level < minEdge.level)
-								minEdge = t;
-						}
-					}
-				}
-			}).start();
+			v.computeMin();
 		}
 	}
 	
 	private void computeMax() {
 		for(final Vertex v : vertexes) {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					for(Edge t : v.edges) {
-						synchronized(maxEdge) {
-							if(t.level > maxEdge.level)
-								maxEdge = t;
-						}
-					}
-				}
-			}).start();
+			v.computeMax();
 		}
 	}
 	
+	void setMin(Edge edge) {
+		synchronized(minEdge) {
+			if(edge.level < minEdge.level)
+				minEdge = edge;
+		}
+	}
+	
+	void setMax(Edge edge) {
+		synchronized(maxEdge) {
+			if(edge.level > maxEdge.level)
+				maxEdge = edge;
+		}
+	}
+	
+	public Vertex newVertex() {
+		Vertex v = new Vertex(this, next++);
+		vertexes.add(v);
+		return v;
+	}
+	
 	public Edge newEdge(Vertex v1, Vertex v2, int level) {
-		Edge e = new Edge(v1, v2);
-		e.level = level;
-		v1.edges.add(e);
+		Edge e = v1.newEdge(v2);
 		
 		if(minEdge == null && maxEdge == null) {
 			minEdge = e;
@@ -177,7 +162,8 @@ public class Main {
 		
 		for(Vertex v : graph.vertexes) {
 			for(Edge e : v.edges) {
-				assert(e.color == (int)(255.0*(double)(e.level - min)/(double)(max-min)));
+				if(e.color != (int)(255.0*(double)(e.level - min)/(double)(max-min)))
+					System.err.println(e.toString() + " powinno być " + (int)(255.0*(double)(e.level - min)/(double)(max-min)));
 			}
 		}
 		p2 = System.nanoTime();

@@ -8,10 +8,10 @@ public class Vertex implements Serializable {
 	private static final long serialVersionUID = -6300664513616426780L;
 	
 	public final int id;
-	private Main graph; 
+	private Graph graph; 
 	Collection<Edge> edges;
 	
-	public Vertex(Main graph, int id) {
+	public Vertex(Graph graph, int id) {
 		this.graph = graph;
 		this.id = id;
 		this.edges = new LinkedList<Edge>();

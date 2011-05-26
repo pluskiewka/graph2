@@ -41,11 +41,7 @@ public class NewEdgeFrame extends JFrame {
 		levelLabel = new JLabel(LEVEL);
 		saveButton = new JButton(SAVE);
 		cancelButton = new JButton(CANCEL);
-		try {
-			nextVertexComboBox = new JComboBox(new NextVertexModel(graph.getVertexes()));
-		} catch (RemoteException e) {
-			nextVertexComboBox = new JComboBox();
-		}
+		nextVertexComboBox = new JComboBox(new NextVertexModel(graph));
 		levelTextField = new JTextField();
 		
 		GroupLayout layout = new GroupLayout(mainPanel);
@@ -56,11 +52,12 @@ public class NewEdgeFrame extends JFrame {
 		
 		layout.setHorizontalGroup(layout.createParallelGroup()
 				.addGroup(layout.createSequentialGroup()
-						.addComponent(nextVertexLabel)
-						.addComponent(nextVertexComboBox))
-				.addGroup(layout.createSequentialGroup()
-						.addComponent(levelLabel)
-						.addComponent(levelTextField))
+						.addGroup(layout.createParallelGroup(Alignment.LEADING)
+								.addComponent(nextVertexLabel)
+								.addComponent(levelLabel))
+						.addGroup(layout.createParallelGroup(Alignment.CENTER)
+								.addComponent(nextVertexComboBox)
+								.addComponent(levelTextField)))
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(cancelButton)
 						.addComponent(saveButton)));
@@ -100,7 +97,7 @@ public class NewEdgeFrame extends JFrame {
 		
 		this.add(mainPanel);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		this.setPreferredSize(new Dimension(142,220));
+		this.setPreferredSize(new Dimension(300,135));
 		this.setLocationByPlatform(true);
 		this.pack();
 		this.setVisible(true);

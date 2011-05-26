@@ -1,17 +1,18 @@
 package main.gui.model;
 
-import java.util.List;
+import java.rmi.RemoteException;
 
 import javax.swing.table.DefaultTableModel;
 
+import main.remote.RemoteGraph;
 import main.remote.RemoteVertex;
 
 public class VertexTableModel extends DefaultTableModel {
 	private static final long serialVersionUID = 1235329209779281312L;
-	private List<RemoteVertex> vertexes;
+	private RemoteGraph graph;
 	
-	public VertexTableModel(List<RemoteVertex> vertexes) {
-		this.vertexes = vertexes;
+	public VertexTableModel(RemoteGraph graph) {
+		this.graph = graph;
 	}
 	
 	@Override
@@ -21,7 +22,13 @@ public class VertexTableModel extends DefaultTableModel {
 	
 	@Override
 	public int getRowCount() {
-		return vertexes.size();
+		if(graph != null)
+			try {
+				return graph.getVertexes().size();
+			} catch (RemoteException e) {
+				return 0;
+			}
+		return 0;
 	}
 	
 	@Override
@@ -34,6 +41,23 @@ public class VertexTableModel extends DefaultTableModel {
 	
 	@Override
 	public Object getValueAt(int row, int column) {
-		return vertexes.get(row).toString();
+		try {
+			return graph.getVertexes().get(row).toString();
+		} catch (RemoteException e) {
+			return "error";
+		}
+	}
+	
+	@Override
+	public boolean isCellEditable(int row, int column) {
+		return false;
+	}
+
+	public RemoteVertex get(int selectedRow) {
+		try {
+			return graph.getVertexes().get(selectedRow);
+		} catch (RemoteException e) {
+			return null;
+		}
 	}
 }

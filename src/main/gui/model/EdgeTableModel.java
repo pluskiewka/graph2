@@ -25,7 +25,9 @@ public class EdgeTableModel extends DefaultTableModel {
 	@Override
 	public int getRowCount() {
 		try {
-			return vertex.getEdges().size();
+			if(vertex != null)
+				return vertex.getEdges().size();
+			return 0;
 		} catch (RemoteException e) {
 			System.err.println(e.toString());
 			return 0;

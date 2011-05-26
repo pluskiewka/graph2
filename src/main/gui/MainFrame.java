@@ -3,8 +3,9 @@ package main.gui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.rmi.RemoteException;
-import java.util.LinkedList;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -17,7 +18,6 @@ import javax.swing.GroupLayout.Alignment;
 
 import main.gui.model.VertexTableModel;
 import main.remote.RemoteGraph;
-import main.remote.RemoteVertex;
 
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 6059401950657455790L;
@@ -34,11 +34,7 @@ public class MainFrame extends JFrame {
 	public MainFrame(final RemoteGraph graph) {
 		super("Graph2");
 	
-		try {
-			vertexTableModel = new VertexTableModel(graph.getVertexes());
-		} catch (RemoteException e2) {
-			vertexTableModel = new VertexTableModel(new LinkedList<RemoteVertex>());
-		}
+		vertexTableModel = new VertexTableModel(graph);
 		mainPanel = new JPanel();
 		newVertexButton = new JButton(NEW_VERTEX);
 		vertexTable = new JTable(vertexTableModel);
@@ -52,9 +48,35 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					graph.newVertex();
+					vertexTableModel.fireTableDataChanged();
 				} catch (RemoteException e1) {
 					JOptionPane.showMessageDialog(MainFrame.this, e.toString());
 				}
+			}
+		});
+		
+		vertexTable.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(e.getClickCount() == 2)
+					new VertexFrame(graph, vertexTableModel.get(vertexTable.getSelectedRow()));
 			}
 		});
 		
@@ -74,7 +96,7 @@ public class MainFrame extends JFrame {
 		
 		this.add(mainPanel);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setPreferredSize(new Dimension(142,220));
+		this.setPreferredSize(new Dimension(500,300));
 		this.setLocationByPlatform(true);
 		this.pack();
 		this.setVisible(true);

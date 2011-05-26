@@ -61,8 +61,8 @@ public class VertexFrame extends JFrame {
 						.addComponent(edgePane)));
 		
 		this.add(mainPanel);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setPreferredSize(new Dimension(142,220));
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		this.setPreferredSize(new Dimension(500,300));
 		this.setLocationByPlatform(true);
 		this.pack();
 		this.setVisible(true);

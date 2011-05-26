@@ -26,9 +26,9 @@ public class NextVertexModel extends DefaultComboBoxModel {
 	@Override
 	public Object getElementAt(int index) {
 		try {
-			return graph.getVertexes().get(index);
+			return new RemoteVertexWrapper(graph.getVertexes().get(index));
 		} catch (RemoteException e) {
-			return null;
+			return "error";
 		}
 	}
 }

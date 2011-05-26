@@ -49,8 +49,8 @@ public class EdgeTableModel extends DefaultTableModel {
 	public Object getValueAt(int row, int column) {
 		try {
 			switch(column) {
-			case 0: return vertex.getEdges().get(row).getSource().toString();
-			case 1: return vertex.getEdges().get(row).getDest().toString();
+			case 0: return vertex.getEdges().get(row).getSource().getName();
+			case 1: return vertex.getEdges().get(row).getDest().getName();
 			case 2: return vertex.getEdges().get(row).getLevel();
 			case 3: return vertex.getEdges().get(row).getColor();
 			default: return "null";

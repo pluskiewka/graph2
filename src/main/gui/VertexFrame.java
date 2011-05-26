@@ -42,7 +42,7 @@ public class VertexFrame extends JFrame {
 		newEdgeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new NewEdgeFrame(graph, vertex);
+				new NewEdgeFrame(graph, vertex, edgeTableModel);
 			}
 		});
 		

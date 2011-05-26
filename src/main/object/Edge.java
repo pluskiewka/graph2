@@ -64,6 +64,11 @@ public class Edge extends UnicastRemoteObject implements Serializable, RemoteEdg
 	
 	@Override
 	public String toString() {
+		return getName();
+	}
+	
+	@Override
+	public String getName() {
 		return "Edge: " + v1 + " " + v2 + " level: " + level + " color: " + color;
 	}
 

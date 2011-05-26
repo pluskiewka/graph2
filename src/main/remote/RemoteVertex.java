@@ -19,4 +19,6 @@ public interface RemoteVertex extends Remote {
 	public void computeMax() throws RemoteException;
 
 	public List<RemoteEdge> getEdges() throws RemoteException;
+
+	public String getName() throws RemoteException;
 }

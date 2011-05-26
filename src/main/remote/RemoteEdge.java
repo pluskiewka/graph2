@@ -15,4 +15,6 @@ public interface RemoteEdge extends Remote {
 	public RemoteVertex getSource() throws RemoteException;
 	
 	public RemoteVertex getDest() throws RemoteException;
+
+	public String getName() throws RemoteException;
 }

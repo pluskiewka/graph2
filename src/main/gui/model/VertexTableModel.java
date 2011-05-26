@@ -42,7 +42,7 @@ public class VertexTableModel extends DefaultTableModel {
 	@Override
 	public Object getValueAt(int row, int column) {
 		try {
-			return graph.getVertexes().get(row).toString();
+			return graph.getVertexes().get(row).getName();
 		} catch (RemoteException e) {
 			return "error";
 		}

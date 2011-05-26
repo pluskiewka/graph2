@@ -15,7 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.GroupLayout.Alignment;
 
+import main.gui.model.EdgeTableModel;
 import main.gui.model.NextVertexModel;
+import main.gui.model.RemoteVertexWrapper;
 import main.remote.RemoteGraph;
 import main.remote.RemoteVertex;
 
@@ -33,7 +35,7 @@ public class NewEdgeFrame extends JFrame {
 	private JTextField levelTextField;
 	private JButton saveButton, cancelButton;
 	
-	public NewEdgeFrame(final RemoteGraph graph, final RemoteVertex vertex) {
+	public NewEdgeFrame(final RemoteGraph graph, final RemoteVertex vertex, final EdgeTableModel tableModel) {
 		super("Graph2 - New Edge");
 		
 		mainPanel = new JPanel();
@@ -43,6 +45,8 @@ public class NewEdgeFrame extends JFrame {
 		cancelButton = new JButton(CANCEL);
 		nextVertexComboBox = new JComboBox(new NextVertexModel(graph));
 		levelTextField = new JTextField();
+		
+		nextVertexComboBox.setEditable(true);
 		
 		GroupLayout layout = new GroupLayout(mainPanel);
 		mainPanel.setLayout(layout);
@@ -85,7 +89,8 @@ public class NewEdgeFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					graph.newEdge(vertex, (RemoteVertex)nextVertexComboBox.getSelectedItem(), Integer.parseInt(levelTextField.getText()));
+					graph.newEdge(vertex, ((RemoteVertexWrapper)nextVertexComboBox.getSelectedItem()).vertex, Integer.parseInt(levelTextField.getText()));
+					tableModel.fireTableDataChanged();
 					NewEdgeFrame.this.dispose();
 				} catch (NumberFormatException e1) {
 					JOptionPane.showMessageDialog(NewEdgeFrame.this, "Wartość wagi krawędzi całkowitoliczowa.");

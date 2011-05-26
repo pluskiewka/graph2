@@ -6,6 +6,10 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
 
+import org.objectweb.proactive.ActiveObjectCreationException;
+import org.objectweb.proactive.api.PAActiveObject;
+import org.objectweb.proactive.core.node.NodeException;
+
 public class Graph {
 	private Collection<Vertex> vertexes;
 	private Edge minEdge, maxEdge;
@@ -52,13 +56,13 @@ public class Graph {
 		}
 	}
 	
-	public Vertex newVertex() {
-		Vertex v = new Vertex(this, next++);
+	public Vertex newVertex() throws ActiveObjectCreationException, NodeException {
+		Vertex v = (Vertex)PAActiveObject.newActive(Vertex.class, new Object[] { this, next++ } );
 		vertexes.add(v);
 		return v;
 	}
 	
-	public Edge newEdge(Vertex v1, Vertex v2, int level) {
+	public Edge newEdge(Vertex v1, Vertex v2, int level) throws ActiveObjectCreationException, NodeException {
 		Edge e = v1.newEdge(v2);
 		
 		if(minEdge == null && maxEdge == null) {
@@ -107,8 +111,8 @@ public class Graph {
 		}
 	}
 	
-	public static void main(String []args) {
-		Graph graph = new Graph();
+	public static void main(String []args) throws ActiveObjectCreationException, NodeException {
+		Graph graph = (Graph)PAActiveObject.newActive(Graph.class, new Object[] {});
 		
 		java.util.Scanner sc = new Scanner(System.in);
 		

@@ -4,21 +4,35 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.objectweb.proactive.ActiveObjectCreationException;
 import org.objectweb.proactive.api.PAActiveObject;
+import org.objectweb.proactive.core.node.NodeException;
 import org.objectweb.proactive.extensions.annotation.ActiveObject;
 
 @ActiveObject
 public class Vertex implements Serializable {
 	private static final long serialVersionUID = -6300664513616426780L;
 	
-	public final int id;
-	public final Graph graph; 
+	public int id;
+	public Graph graph; 
 	Collection<Edge> edges;
 	
 	public Vertex(Graph graph, int id) {
+		super();
 		this.graph = graph;
 		this.id = id;
+	}
+	
+	public Vertex() {
 		this.edges = new LinkedList<Edge>();
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	public void setGraph(Graph graph) {
+		this.graph = graph;
 	}
 	
 	@Override
@@ -69,8 +83,8 @@ public class Vertex implements Serializable {
 		}).start();
 	}
 	
-	public Edge newEdge(Vertex v2) {
-		Edge edge = new Edge(graph, this, v2);
+	public Edge newEdge(Vertex v2) throws ActiveObjectCreationException, NodeException {
+		Edge edge = (Edge)PAActiveObject.newActive(Edge.class, new Object[] {graph, this, v2});
 		edges.add(edge);
 		return edge;
 	}

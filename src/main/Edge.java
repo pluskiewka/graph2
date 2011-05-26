@@ -2,9 +2,6 @@ package main;
 
 import java.io.Serializable;
 
-import org.objectweb.proactive.extensions.annotation.ActiveObject;
-
-@ActiveObject
 public class Edge implements Serializable {
 	private static final long serialVersionUID = -6302028332002939511L;
 	

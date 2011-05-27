@@ -35,6 +35,13 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 		} catch (RemoteException e) {
 			logger.warn(e.toString());
 		}
+		
+		try {
+			server = (RemoteServer)Naming.lookup("//127.0.0.1/Graph");
+		} catch (Exception e) {
+			logger.error(e.toString());
+			System.exit(-1);
+		} 
 	}
 	
 	public static void main(String []args) {

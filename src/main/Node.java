@@ -49,7 +49,6 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 			} 
 			
 			node = new Node();
-			Naming.rebind("Graph"+args[0], node);
 			server.registerGraph(node);
 			logger.info("Graph"+args[0]+" ready");
 		} catch (Exception e) {

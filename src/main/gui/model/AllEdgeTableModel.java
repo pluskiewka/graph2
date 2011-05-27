@@ -13,8 +13,10 @@ import main.remote.RemoteVertex;
 public class AllEdgeTableModel extends DefaultTableModel {
 	private static final long serialVersionUID = -212057958050954513L;
 	private List<RemoteEdge> edges;
+	private RemoteGraph graph;
 	
 	public AllEdgeTableModel(RemoteGraph graph) throws RemoteException {
+		this.graph = graph;
 		this.edges = new LinkedList<RemoteEdge>();
 		for(RemoteVertex vertex : graph.getVertexes()) {
 			edges.addAll(vertex.getEdges());
@@ -75,6 +77,13 @@ public class AllEdgeTableModel extends DefaultTableModel {
 			} catch (Exception e) {
 				System.err.println(e.toString());
 			}
+		}
+	}
+
+	public void refresh() throws RemoteException {
+		edges.removeAll(edges);
+		for(RemoteVertex vertex : graph.getVertexes()) {
+			edges.addAll(vertex.getEdges());
 		}
 	}
 }

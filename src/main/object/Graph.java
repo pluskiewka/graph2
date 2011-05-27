@@ -6,12 +6,15 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import main.remote.RemoteEdge;
 import main.remote.RemoteGraph;
 import main.remote.RemoteVertex;
 
 public class Graph extends UnicastRemoteObject implements Serializable, RemoteGraph {
 	private static final long serialVersionUID = -4380588331184967314L;
+	private static final Logger logger = Logger.getLogger(Graph.class);
 	
 	private List<RemoteVertex> vertexes;
 	private RemoteEdge minEdge, maxEdge;
@@ -37,22 +40,49 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	
 	@Override
 	public void computeColor() throws RemoteException {
-		for(RemoteVertex vertex : vertexes) {
-			vertex.computeColor();
+		for(final RemoteVertex vertex : vertexes) {
+			new Thread(new Runnable(){
+				@Override
+				public void run() {
+					try {
+						vertex.computeColor();
+					} catch (RemoteException e) {
+						logger.error(e.toString());
+					}
+				}
+			}).start();
 		}
 	}
 	
 	@Override
 	public void computeMin() throws RemoteException {
-		for(RemoteVertex vertex : vertexes) {
-			vertex.computeMin();
+		for(final RemoteVertex vertex : vertexes) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						vertex.computeMin();
+					} catch (RemoteException e) {
+						logger.error(e.toString());
+					}
+				}
+			}).start();
 		}
 	}
 	
 	@Override
 	public void computeMax() throws RemoteException {
-		for(RemoteVertex vertex : vertexes) {
-			vertex.computeMax();
+		for(final RemoteVertex vertex : vertexes) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						vertex.computeMax();
+					} catch (RemoteException e) {
+						logger.error(e.toString());
+					}
+				}
+			}).start();
 		}
 	}
 	

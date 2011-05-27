@@ -35,7 +35,7 @@ public class NewEdgeFrame extends JFrame {
 	private JTextField levelTextField;
 	private JButton saveButton, cancelButton;
 	
-	public NewEdgeFrame(final RemoteGraph graph, final RemoteVertex vertex, final EdgeTableModel tableModel) {
+	public NewEdgeFrame(final RemoteGraph graph, final RemoteVertex vertex, final EdgeTableModel tableModel) throws RemoteException {
 		super("Graph2 - New Edge");
 		
 		mainPanel = new JPanel();

@@ -1,34 +1,32 @@
 package main.gui.model;
 
 import java.rmi.RemoteException;
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.swing.DefaultComboBoxModel;
 
 import main.remote.RemoteGraph;
+import main.remote.RemoteVertex;
 
 public class NextVertexModel extends DefaultComboBoxModel {
 	private static final long serialVersionUID = 4850064767462942799L;
 	
-	private RemoteGraph graph;
+	private List<RemoteVertex> vertexes;
 	
-	public NextVertexModel(RemoteGraph graph) {
-		this.graph = graph;
+	public NextVertexModel(RemoteGraph graph) throws RemoteException {
+		vertexes = new LinkedList<RemoteVertex>(graph.getVertexes());
 	}
 	
 	@Override
 	public int getSize() {
-		try {
-			return graph.getVertexes().size();
-		} catch (RemoteException e) {
-			return 0;
-		}
+		if(vertexes != null)
+			return vertexes.size();
+		return 0;
 	}
 	
 	@Override
 	public Object getElementAt(int index) {
-		try {
-			return new RemoteVertexWrapper(graph.getVertexes().get(index));
-		} catch (RemoteException e) {
-			return "error";
-		}
+		return new RemoteVertexWrapper(vertexes.get(index));
 	}
 }

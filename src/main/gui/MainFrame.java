@@ -16,14 +16,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.GroupLayout.Alignment;
 
+import org.apache.log4j.Logger;
+
 import main.gui.model.AllEdgeTableModel;
 import main.gui.model.VertexTableModel;
 import main.remote.RemoteGraph;
 
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 6059401950657455790L;
-
+	private static final Logger logger = Logger.getLogger(MainFrame.class);
 	private static final String NEW_VERTEX = "Nowy wierzchołek";
+	private static final String REFRESH = "Odśwież";
 	
 	private VertexTableModel vertexTableModel;
 	private AllEdgeTableModel edgeTableModel;
@@ -31,7 +34,7 @@ public class MainFrame extends JFrame {
 	private JPanel mainPanel;
 	private JScrollPane vertexPane, edgePane;
 	private JTable vertexTable, edgeTable;
-	private JButton newVertexButton;
+	private JButton newVertexButton, refreshButton;
 	
 	public MainFrame(final RemoteGraph graph) throws RemoteException {
 		super("Graph2");
@@ -40,6 +43,7 @@ public class MainFrame extends JFrame {
 		edgeTableModel = new AllEdgeTableModel(graph);
 		mainPanel = new JPanel();
 		newVertexButton = new JButton(NEW_VERTEX);
+		refreshButton = new JButton(REFRESH);
 		vertexTable = new JTable(vertexTableModel);
 		vertexPane = new JScrollPane(vertexTable);
 		edgeTable = new JTable(edgeTableModel);
@@ -56,6 +60,19 @@ public class MainFrame extends JFrame {
 					vertexTableModel.fireTableDataChanged();
 				} catch (RemoteException e1) {
 					JOptionPane.showMessageDialog(MainFrame.this, e.toString());
+				}
+			}
+		});
+		
+		refreshButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					vertexTableModel.refresh();
+					edgeTableModel.refresh();
+				} catch (RemoteException e1) {
+					logger.error(e1.toString());
+					JOptionPane.showMessageDialog(MainFrame.this, "Błąd w trakcie odświeżania tabeli");
 				}
 			}
 		});
@@ -81,7 +98,12 @@ public class MainFrame extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(e.getClickCount() == 2)
-					new VertexFrame(graph, vertexTableModel.get(vertexTable.getSelectedRow()));
+					try {
+						new VertexFrame(graph, vertexTableModel.get(vertexTable.getSelectedRow()));
+					} catch (RemoteException e1) {
+						logger.error(e1.toString());
+						JOptionPane.showMessageDialog(MainFrame.this, "Błąd podczas otwierania okna");
+					}
 			}
 		});
 		
@@ -90,13 +112,15 @@ public class MainFrame extends JFrame {
 		
 		layout.setHorizontalGroup(layout.createParallelGroup(Alignment.CENTER)
 				.addGroup(layout.createSequentialGroup()
-						.addComponent(newVertexButton))
+						.addComponent(newVertexButton)
+						.addComponent(refreshButton))
 				.addGroup(layout.createSequentialGroup()
 					.addComponent(vertexPane)
 					.addComponent(edgePane)));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(newVertexButton))
+						.addComponent(newVertexButton)
+						.addComponent(refreshButton))
 				.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(vertexPane)
 						.addComponent(edgePane)));

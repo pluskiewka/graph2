@@ -1,18 +1,25 @@
 package main.gui.model;
 
 import java.rmi.RemoteException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.table.DefaultTableModel;
+
+import org.apache.log4j.Logger;
 
 import main.remote.RemoteGraph;
 import main.remote.RemoteVertex;
 
 public class VertexTableModel extends DefaultTableModel {
 	private static final long serialVersionUID = 1235329209779281312L;
+	private static final Logger logger = Logger.getLogger(VertexTableModel.class);
 	private RemoteGraph graph;
+	private List<RemoteVertex> vertexes;
 	
-	public VertexTableModel(RemoteGraph graph) {
+	public VertexTableModel(RemoteGraph graph) throws RemoteException {
 		this.graph = graph;
+		vertexes = new LinkedList<RemoteVertex>(graph.getVertexes());
 	}
 	
 	@Override
@@ -22,12 +29,8 @@ public class VertexTableModel extends DefaultTableModel {
 	
 	@Override
 	public int getRowCount() {
-		if(graph != null)
-			try {
-				return graph.getVertexes().size();
-			} catch (RemoteException e) {
-				return 0;
-			}
+		if(vertexes != null)
+			return vertexes.size();
 		return 0;
 	}
 	
@@ -42,9 +45,10 @@ public class VertexTableModel extends DefaultTableModel {
 	@Override
 	public Object getValueAt(int row, int column) {
 		try {
-			return graph.getVertexes().get(row).getName();
+			return vertexes.get(row).getName();
 		} catch (RemoteException e) {
-			return "error";
+			logger.error(e.toString());
+			return "null";
 		}
 	}
 	
@@ -54,10 +58,12 @@ public class VertexTableModel extends DefaultTableModel {
 	}
 
 	public RemoteVertex get(int selectedRow) {
-		try {
-			return graph.getVertexes().get(selectedRow);
-		} catch (RemoteException e) {
-			return null;
-		}
+		return vertexes.get(selectedRow);
+	}
+
+	public void refresh() throws RemoteException {
+		vertexes.removeAll(vertexes);
+		vertexes.addAll(graph.getVertexes());
+		fireTableDataChanged();
 	}
 }

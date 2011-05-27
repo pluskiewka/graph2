@@ -1,20 +1,22 @@
 package main.gui.model;
 
 import java.rmi.RemoteException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.table.DefaultTableModel;
 
-import main.remote.RemoteGraph;
+import main.remote.RemoteEdge;
 import main.remote.RemoteVertex;
 
 public class EdgeTableModel extends DefaultTableModel {
 	private static final long serialVersionUID = 8693903517704997240L;
-	private RemoteGraph graph;
 	private RemoteVertex vertex;
+	private List<RemoteEdge> edges;
 	
-	public EdgeTableModel(RemoteGraph graph, RemoteVertex vertex) {
-		this.graph = graph;
+	public EdgeTableModel(RemoteVertex vertex) throws RemoteException {
 		this.vertex = vertex;
+		this.edges = new LinkedList<RemoteEdge>(vertex.getEdges());
 	}
 	
 	@Override
@@ -24,14 +26,9 @@ public class EdgeTableModel extends DefaultTableModel {
 	
 	@Override
 	public int getRowCount() {
-		try {
-			if(vertex != null)
-				return vertex.getEdges().size();
-			return 0;
-		} catch (RemoteException e) {
-			System.err.println(e.toString());
-			return 0;
-		}
+		if(edges != null)
+			return edges.size();
+		return 0;
 	}
 	
 	@Override
@@ -49,10 +46,10 @@ public class EdgeTableModel extends DefaultTableModel {
 	public Object getValueAt(int row, int column) {
 		try {
 			switch(column) {
-			case 0: return vertex.getEdges().get(row).getSource().getName();
-			case 1: return vertex.getEdges().get(row).getDest().getName();
-			case 2: return vertex.getEdges().get(row).getLevel();
-			case 3: return vertex.getEdges().get(row).getColor();
+			case 0: return edges.get(row).getSource().getName();
+			case 1: return edges.get(row).getDest().getName();
+			case 2: return edges.get(row).getLevel();
+			case 3: return edges.get(row).getColor();
 			default: return "null";
 			}
 		} catch (RemoteException e) {
@@ -72,10 +69,16 @@ public class EdgeTableModel extends DefaultTableModel {
 	public void setValueAt(Object value, int row, int column) {
 		if(column == 2) {
 			try {
-				graph.setLevel(vertex.getEdges().get(row), Integer.parseInt(value.toString()));
+				edges.get(row).getGraph().setLevel(edges.get(row), Integer.parseInt(value.toString()));
 			} catch (Exception e) {
 				System.err.println(e.toString());
 			}
 		}
+	}
+
+	public void refresh() throws RemoteException {
+		edges.removeAll(edges);
+		edges.addAll(vertex.getEdges());
+		fireTableDataChanged();
 	}
 }

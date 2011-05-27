@@ -1,0 +1,17 @@
+* Server
+
+Główny program, z nim łączy się klient, do niego podpinają się węzły, 
+odpowiada za forwardowanie zapytań do serwera do poszczególnych node'ów
+wszelkie operacje na pseudo-modelu grafu jaki reprezentuje, wykonywane sa 
+na poszczególnych node'ach
+
+* Node
+
+Utrzymuje lokalna wersję grafu, wykonuje operacje takie jak w przypadku
+pojedynczym, tj. w modelu nierozproszonym.
+
+Argumentem w linii poleceń jest unikalna nazwa węzła w obrębie hosta.
+
+* Client
+
+Podłącza się pod server i pozwala na edycję grafu.

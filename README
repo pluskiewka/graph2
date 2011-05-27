@@ -10,7 +10,8 @@ na poszczególnych node'ach
 Utrzymuje lokalna wersję grafu, wykonuje operacje takie jak w przypadku
 pojedynczym, tj. w modelu nierozproszonym.
 
-Argumentem w linii poleceń jest unikalna nazwa węzła w obrębie hosta.
+Argumentem w linii poleceń jest unikalna nazwa węzła w obrębie hosta oraz
+adres IP czy nazwa hosta który jest serwerem.
 
 * Client
 

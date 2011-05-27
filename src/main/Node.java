@@ -3,6 +3,8 @@ package main;
 import java.io.Serializable;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
@@ -29,11 +31,10 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 		}
 		
 		try {
-			server = (RemoteServer)Naming.lookup("//127.0.0.1/Graph");
-		} catch (Exception e) {
-			logger.error(e.toString());
-			System.exit(-1);
-		} 
+			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+		} catch (RemoteException e) {
+			logger.warn(e.toString());
+		}
 	}
 	
 	public static void main(String []args) {

@@ -32,10 +32,8 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 		try {
 			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
 		} catch (RemoteException e) {
-			logger.error(e.toString());
-			System.exit(-1);
+			logger.warn(e.toString());
 		}
-		
 	}
 	
 	public static void main(String []args) {

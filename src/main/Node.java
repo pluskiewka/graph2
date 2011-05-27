@@ -55,8 +55,8 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 	}
 
 	@Override
-	public RemoteVertex newVertex() throws RemoteException {
-		RemoteVertex v = localGraph.newVertex();
+	public RemoteVertex newVertex(Integer id) throws RemoteException {
+		RemoteVertex v = localGraph.newVertex(id);
 		logger.info("New vertex " + v.getName());
 		return v;
 	}

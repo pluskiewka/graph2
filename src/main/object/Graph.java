@@ -16,8 +16,6 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	private List<RemoteVertex> vertexes;
 	private RemoteEdge minEdge, maxEdge;
 	
-	private int next = 0;
-	
 	public Graph() throws RemoteException {
 		this.vertexes = new LinkedList<RemoteVertex>();
 	}
@@ -75,8 +73,8 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	}
 	
 	@Override
-	public RemoteVertex newVertex() throws RemoteException {
-		RemoteVertex v = new Vertex(this, next++ );
+	public RemoteVertex newVertex(Integer id) throws RemoteException {
+		RemoteVertex v = new Vertex(this, id);
 		vertexes.add(v);
 		return v;
 	}

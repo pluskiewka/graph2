@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface RemoteGraph extends Remote {
 
-	public RemoteVertex newVertex() throws RemoteException;
+	public RemoteVertex newVertex(Integer id) throws RemoteException;
 	
 	public RemoteEdge newEdge(RemoteVertex v1, RemoteVertex v2, Integer level) throws RemoteException;
 	

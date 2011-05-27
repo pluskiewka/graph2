@@ -52,7 +52,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					graph.newVertex();
+					graph.newVertex(0);
 					vertexTableModel.fireTableDataChanged();
 				} catch (RemoteException e1) {
 					JOptionPane.showMessageDialog(MainFrame.this, e.toString());

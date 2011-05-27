@@ -48,11 +48,12 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 	}
 	
 	private List<RemoteGraph> graphs;
-	private int currentGraph;
+	private int currentGraph, next;
 	
 	public Server() throws RemoteException {
 		graphs = new LinkedList<RemoteGraph>();
 		currentGraph = 0;
+		next = 0;
 	}
 	
 	@Override
@@ -68,9 +69,9 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 	}
 
 	@Override
-	public RemoteVertex newVertex() throws RemoteException {
+	public RemoteVertex newVertex(Integer id) throws RemoteException {
 		currentGraph = (currentGraph +1) % graphs.size();
-		RemoteVertex v = graphs.get(currentGraph).newVertex();
+		RemoteVertex v = graphs.get(currentGraph).newVertex(next++);
 		logger.info("New vertex " + v.getName());
 		return v;
 	}

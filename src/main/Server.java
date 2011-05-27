@@ -9,6 +9,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
 import main.remote.RemoteEdge;
 import main.remote.RemoteGraph;
 import main.remote.RemoteServer;
@@ -16,9 +19,11 @@ import main.remote.RemoteVertex;
 
 public class Server extends UnicastRemoteObject implements Serializable, RemoteServer, RemoteGraph {
 	private static final long serialVersionUID = 1605997964417190854L;
+	private static final Logger logger = Logger.getLogger(Server.class);
 
 	static {
 		System.setProperty("java.security.policy", "policy.properties");
+		PropertyConfigurator.configure("logger.log4j.properties");
 		
 		if (System.getSecurityManager() == null) {
 		    System.setSecurityManager(new SecurityManager());
@@ -27,7 +32,7 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 		try {
 			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
 		} catch (RemoteException e) {
-			System.err.println(e.toString());
+			logger.error(e.toString());
 			System.exit(-1);
 		}
 		
@@ -36,8 +41,9 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 	public static void main(String []args) {
 		try {
 			Naming.rebind("Graph", new Server());
+			logger.info("Graph ready");
 		} catch (Exception e) {
-			System.err.println(e.toString());
+			logger.error(e.toString());
 		}
 	}
 	
@@ -52,25 +58,29 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 	@Override
 	public void registerGraph(RemoteGraph graph) {
 		graphs.add(graph);
-		System.err.println("new graph");
+		logger.info("Registered new graph-node");
 	}
 
 	@Override
 	public void unregisterGraph(RemoteGraph graph) {
 		graphs.remove(graph);
-		System.err.println("del graph");
+		logger.info("Unregistered graph-node");
 	}
 
 	@Override
 	public RemoteVertex newVertex() throws RemoteException {
 		currentGraph = (currentGraph +1) % graphs.size();
-		return graphs.get(currentGraph).newVertex();
+		RemoteVertex v = graphs.get(currentGraph).newVertex();
+		logger.info("New vertex " + v.getName());
+		return v;
 	}
 
 	@Override
 	public RemoteEdge newEdge(RemoteVertex v1, RemoteVertex v2, Integer level)
 			throws RemoteException {
-		return v1.getGraph().newEdge(v1, v2, level);
+		RemoteEdge e = v1.getGraph().newEdge(v1, v2, level);
+		logger.info("New edge " + e.getName());
+		return e;
 	}
 
 	@Override
@@ -126,6 +136,8 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 	@Override
 	public void setLevel(RemoteEdge edge, Integer level) throws RemoteException {
 		edge.getGraph().setLevel(edge, level);
+		logger.info("Set edge " + edge.getName() + "level to " + level
+				+ "\nMin: " + this.getMinEdge().getName() + ", Max: " + this.getMaxEdge().getName());
 	}
 
 	@Override

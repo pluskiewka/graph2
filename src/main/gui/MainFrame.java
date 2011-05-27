@@ -16,6 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.GroupLayout.Alignment;
 
+import main.gui.model.AllEdgeTableModel;
 import main.gui.model.VertexTableModel;
 import main.remote.RemoteGraph;
 
@@ -25,20 +26,24 @@ public class MainFrame extends JFrame {
 	private static final String NEW_VERTEX = "Nowy wierzchołek";
 	
 	private VertexTableModel vertexTableModel;
+	private AllEdgeTableModel edgeTableModel;
 	
 	private JPanel mainPanel;
-	private JScrollPane vertexPane;
-	private JTable vertexTable;
+	private JScrollPane vertexPane, edgePane;
+	private JTable vertexTable, edgeTable;
 	private JButton newVertexButton;
 	
-	public MainFrame(final RemoteGraph graph) {
+	public MainFrame(final RemoteGraph graph) throws RemoteException {
 		super("Graph2");
 	
 		vertexTableModel = new VertexTableModel(graph);
+		edgeTableModel = new AllEdgeTableModel(graph);
 		mainPanel = new JPanel();
 		newVertexButton = new JButton(NEW_VERTEX);
 		vertexTable = new JTable(vertexTableModel);
 		vertexPane = new JScrollPane(vertexTable);
+		edgeTable = new JTable(edgeTableModel);
+		edgePane = new JScrollPane(edgeTable);
 		
 		GroupLayout layout  = new GroupLayout(mainPanel);
 		mainPanel.setLayout(layout);
@@ -87,12 +92,14 @@ public class MainFrame extends JFrame {
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(newVertexButton))
 				.addGroup(layout.createSequentialGroup()
-					.addComponent(vertexPane)));
+					.addComponent(vertexPane)
+					.addComponent(edgePane)));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(newVertexButton))
 				.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(vertexPane)));
+						.addComponent(vertexPane)
+						.addComponent(edgePane)));
 		
 		this.add(mainPanel);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

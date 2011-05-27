@@ -20,10 +20,9 @@ public class Client {
 	
 	public static void main(String []args) {
 		RemoteGraph graph;
-		MainFrame frame;
 		try {
 			graph = (RemoteGraph)Naming.lookup("//127.0.0.1/Graph");
-			frame = new MainFrame(graph);
+			new MainFrame(graph);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

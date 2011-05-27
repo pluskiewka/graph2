@@ -23,6 +23,11 @@ public class Edge extends UnicastRemoteObject implements Serializable, RemoteEdg
 	}
 	
 	@Override
+	public RemoteGraph getGraph() {
+		return graph;
+	}
+	
+	@Override
 	public Integer getLevel() {
 		return level;
 	}

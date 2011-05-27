@@ -4,6 +4,9 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RemoteEdge extends Remote {
+	
+	public RemoteGraph getGraph() throws RemoteException;
+	
 	public Integer getLevel() throws RemoteException;
 	
 	public void setLevel(Integer level) throws RemoteException;

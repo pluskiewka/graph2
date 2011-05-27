@@ -53,6 +53,7 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 			logger.info("Graph"+args[0]+" ready");
 		} catch (Exception e) {
 			logger.error(e.toString());
+			e.printStackTrace();
 		} 
 	}
 	

@@ -85,5 +85,6 @@ public class AllEdgeTableModel extends DefaultTableModel {
 		for(RemoteVertex vertex : graph.getVertexes()) {
 			edges.addAll(vertex.getEdges());
 		}
+		fireTableDataChanged();
 	}
 }

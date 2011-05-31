@@ -56,7 +56,7 @@ public class Auto {
 			}
 			
 			for(RemoteEdge edge : edges) {
-				edge.setLevel(rand.nextInt(200)-100);
+				graph.setLevel(edge, rand.nextInt(200)-100);
 			}
 
 			Integer minLevel = null, maxLevel = null;

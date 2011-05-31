@@ -37,7 +37,7 @@ public class Auto {
 		try {
 			graph = (RemoteGraph)Naming.lookup("//"+args[0]+"/Graph");
 			
-			for(int i=0; i<10; i++) {
+			for(int i=0; i<5; i++) {
 				graph.newVertex(i);
 			}
 			
@@ -71,7 +71,7 @@ public class Auto {
 			}
 			
 			for(RemoteEdge edge : edges) {
-				assert(edge.getColor().equals((int)255.0*((double)edge.getLevel()-minLevel)/(double)(maxLevel - minLevel)));
+				System.err.println((int)255.0*((double)edge.getLevel()-minLevel)/(double)(maxLevel - minLevel) + " vs. "+ edge.getColor());
 			}
 			
 		} catch (Exception e) {

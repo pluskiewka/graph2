@@ -42,6 +42,8 @@ public class VertexFrame extends JFrame {
 		edgeTable = new JTable(edgeTableModel);
 		edgePane = new JScrollPane(edgeTable);
 		
+		edgeTable.setAutoCreateRowSorter(true);
+		
 		GroupLayout layout  = new GroupLayout(mainPanel);
 		mainPanel.setLayout(layout);
 		

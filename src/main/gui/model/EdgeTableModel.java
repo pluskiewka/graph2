@@ -59,6 +59,17 @@ public class EdgeTableModel extends DefaultTableModel {
 	}
 	
 	@Override
+	public Class<?> getColumnClass(int column) {
+		switch(column) {
+		case 0: 
+		case 1: return String.class;
+		case 2:
+		case 3: return Integer.class;
+		default: return Object.class;
+		}
+	}
+	
+	@Override
 	public boolean isCellEditable(int row, int column) {
 		if(column == 2)
 			return true;

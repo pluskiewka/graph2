@@ -49,6 +49,9 @@ public class MainFrame extends JFrame {
 		edgeTable = new JTable(edgeTableModel);
 		edgePane = new JScrollPane(edgeTable);
 		
+		edgeTable.setAutoCreateRowSorter(true);
+		vertexTable.setAutoCreateRowSorter(true);
+		
 		GroupLayout layout  = new GroupLayout(mainPanel);
 		mainPanel.setLayout(layout);
 		

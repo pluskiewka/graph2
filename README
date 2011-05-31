@@ -1,18 +1,20 @@
-* Server
+Graph2
 
-Główny program, z nim łączy się klient, do niego podpinają się węzły, 
-odpowiada za forwardowanie zapytań do serwera do poszczególnych node'ów
-wszelkie operacje na pseudo-modelu grafu jaki reprezentuje, wykonywane sa 
-na poszczególnych node'ach
+Przy użyciu Java RMI (do rozpraszania obliczeń) oraz Swing'a do wykonania GUI klienta.
 
-* Node
+Katalogi:
+* bin         - zawiera klasy w Java byte-code'ie, kompilowane przy pomocy cmd/compile.sh
+* cfg         - zawiera konfigurację do uruchomienia aplikacji
+* cmd         - zawiera skrypty do kompilacji i uruchomienia aplikacji
+* doc         - JavaDoc wygenerowany na podstawie komentarzy w kodzie
+* lib         - biblioteki towarzyszące, tutaj: do logowania
+* src         - źródła
 
-Utrzymuje lokalna wersję grafu, wykonuje operacje takie jak w przypadku
-pojedynczym, tj. w modelu nierozproszonym.
+Kompilacja:
+Przy pomocy cmd/compile.sh.
 
-Argumentem w linii poleceń jest unikalna nazwa węzła w obrębie hosta oraz
-adres IP czy nazwa hosta który jest serwerem.
-
-* Client
-
-Podłącza się pod server i pozwala na edycję grafu.
+Programy:
+* main/Server - uruchomienie przy pomocy cmd/server.sh z podaniem adresu IP interfejsu sieciowego, z którego będą podłączane poszczególne node'y
+* main/Node   - uruchomienie przy pomocy cmd/node.sh z podaniem adresu IP serwera, stanowi węzeł grafu
+* main/Client - uruchomienie przy pomocy cmd/client.sh z podaniem adresu IP serwera, dostarcza GUI do obsługi grafu
+* main/Auto   - uruchomienie przy pomocy cmd/auto.sh z podaniem adresu IP serwera, automatycznie tworzy graf i go testuje

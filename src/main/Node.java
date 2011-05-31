@@ -34,21 +34,20 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
 		} catch (RemoteException e) {
 			logger.warn(e.toString());
-			System.exit(-1);
 		}
 	}
 	
 	public static void main(String []args) {
 		Node node;
 		
-		if(args.length != 2) {
-			System.err.println("Usage: java main/Node <name> <server>");
+		if(args.length != 1) {
+			System.err.println("Usage: java main/Node <server>");
 			System.exit(-1);
 		}
 		
 		try {
 			try {
-				server = (RemoteServer)Naming.lookup("//"+args[1]+"/Graph");
+				server = (RemoteServer)Naming.lookup("//"+args[0]+"/Graph");
 			} catch (Exception e) {
 				logger.error(e.toString());
 				System.exit(-1);
@@ -56,7 +55,7 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 			
 			node = new Node();
 			server.registerGraph(node);
-			logger.info("Graph"+args[0]+" ready");
+			logger.info("Node ready");
 		} catch (Exception e) {
 			logger.error(e.toString());
 			e.printStackTrace();

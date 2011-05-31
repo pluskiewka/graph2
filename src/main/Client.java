@@ -1,6 +1,7 @@
 package main;
 
 import java.rmi.Naming;
+
 import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
@@ -24,21 +25,19 @@ public class Client {
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
 		} catch (Exception e) {
 			logger.error(e.toString());
-		} 
+		}
 	}
 	
 	public static void main(String []args) {
 		RemoteGraph graph;
 		
-		if(args.length != 2) {
-			System.err.println("Usage: java main/Client <hostname> <server>");
+		if(args.length != 1) {
+			System.err.println("Usage: java main/Client <server>");
 			System.exit(-1);
 		}
 		
-		System.setProperty("java.rmi.server.hostname", args[0]);
-		
 		try {
-			graph = (RemoteGraph)Naming.lookup("//"+args[1]+"/Graph");
+			graph = (RemoteGraph)Naming.lookup("//"+args[0]+"/Graph");
 			new MainFrame(graph);
 		} catch (Exception e) {
 			logger.error(e.toString());

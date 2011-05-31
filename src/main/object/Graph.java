@@ -12,6 +12,10 @@ import main.remote.RemoteEdge;
 import main.remote.RemoteGraph;
 import main.remote.RemoteVertex;
 
+/**
+ * Obiekty tej klasy nie są utrzymywane na serwerze, ale w węzłach, jako lokalne grafy, przechowujące
+ * fragmenty całego grafu.
+ */
 public class Graph extends UnicastRemoteObject implements Serializable, RemoteGraph {
 	private static final long serialVersionUID = -4380588331184967314L;
 	private static final Logger logger = Logger.getLogger(Graph.class);
@@ -22,22 +26,36 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	public Graph() throws RemoteException {
 		this.vertexes = new LinkedList<RemoteVertex>();
 	}
-	
+
+	/**
+	 * Zwraca lokalną, minimalną krawędź.
+	 */
 	@Override
 	public RemoteEdge getMinEdge() {
 		return minEdge;
 	}
 	
+	/**
+	 * Zwraca lokalną, maksymalną krawędź.
+	 */
 	@Override
 	public RemoteEdge getMaxEdge() {
 		return maxEdge;
 	}
 
+	/**
+	 * Zwraca lokalny zbiór wszystkich wierzchołków grafu.
+	 */
 	@Override
 	public List<RemoteVertex> getVertexes() throws RemoteException {
 		return vertexes;
 	}
 	
+	/**
+	 * Przelicza wartości koloru, w zależności od wagi krawędzi. Wykonywane jest to wielowątkowo
+	 * w jednym weźle, w każdym wątku przeliczane są krawędzie skierowane, wychodzące z jednego 
+	 * wierzchołka.
+	 */
 	@Override
 	public void computeColor() throws RemoteException {
 		for(final RemoteVertex vertex : vertexes) {
@@ -54,6 +72,11 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 		}
 	}
 	
+	/**
+	 * Przeszukiwanie lokalne grafu, w celu znalezienia minimalnej krawędzi. Podobnie jak w przypadku 
+	 * przeliczania koloru, wykonuje się to wielowątkowo w jednym węźle, gdzie jeden wątke odpowiada 
+	 * jednemu wierzchołkowi.
+	 */
 	@Override
 	public void computeMin() throws RemoteException {
 		for(final RemoteVertex vertex : vertexes) {
@@ -69,7 +92,12 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 			}).start();
 		}
 	}
-	
+
+	/**
+	 * Przeszukiwanie lokalne grafu, w celu znalezienia maksymalnej krawędzi. Podobnie jak w przypadku 
+	 * przeliczania koloru, wykonuje się to wielowątkowo w jednym węźle, gdzie jeden wątke odpowiada 
+	 * jednemu wierzchołkowi.
+	 */
 	@Override
 	public void computeMax() throws RemoteException {
 		for(final RemoteVertex vertex : vertexes) {
@@ -86,6 +114,9 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 		}
 	}
 	
+	/**
+	 * Ustawienie krawędzi minimalnej, o ile podana ma wagę mniejszą niż obecna minimalna krawędź.
+	 */
 	@Override
 	public void setMin(RemoteEdge edge) throws RemoteException {
 		synchronized(minEdge) {
@@ -94,6 +125,9 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 		}
 	}
 	
+	/**
+	 * Ustawienie krawędzi maksymalnej, o ile podana ma wagę większą niż obecna maksymalna krawędź.
+	 */
 	@Override
 	public void setMax(RemoteEdge edge) throws RemoteException {
 		synchronized(maxEdge) {
@@ -102,6 +136,9 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 		}
 	}
 	
+	/**
+	 * Dodanie nowej wierzchołka do lokalnego grafu.
+	 */
 	@Override
 	public RemoteVertex newVertex(Integer id) throws RemoteException {
 		RemoteVertex v = new Vertex(this, id);
@@ -109,6 +146,9 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 		return v;
 	}
 	
+	/**
+	 * Dodanie nowej krawędzi do grafu, wraz z ustaleniem wagi oraz kalibracją zakresu wag krawędzie.
+	 */
 	@Override
 	public RemoteEdge newEdge(RemoteVertex v1, RemoteVertex v2, Integer level) throws RemoteException {
 		RemoteEdge edge = v1.newEdge(v2, level);
@@ -130,6 +170,9 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 		return edge;
 	}
 	
+	/**
+	 * Ustawienie wartości wagi dla danej krawędzi, należy tę metodę używać.
+	 */
 	@Override
 	public void setLevel(RemoteEdge edge, Integer level) throws RemoteException {
 		if(edge.getLevel().equals(level))

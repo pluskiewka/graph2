@@ -22,36 +22,57 @@ public class Edge extends UnicastRemoteObject implements Serializable, RemoteEdg
 		this.level = level;
 	}
 	
+	/**
+	 * Referencja na lokalny graf.
+	 */
 	@Override
 	public RemoteGraph getGraph() {
 		return graph;
 	}
 	
+	/**
+	 * Pobranie wartości wagi krawędzi.
+	 */
 	@Override
 	public Integer getLevel() {
 		return level;
 	}
 	
+	/**
+	 * Ustawienie wartości wagi krawędzi.
+	 */
 	@Override
 	public void setLevel(Integer level) {
 		this.level = level;
 	}
 	
+	/**
+	 * Uzyskanie koloru krawędzi.
+	 */
 	@Override
 	public Integer getColor() {
 		return color;
 	}
 
+	/**
+	 * Uzyskanie referencji na początek krawędzi skierowanej.
+	 */
 	@Override
 	public RemoteVertex getSource() throws RemoteException {
 		return v1;
 	}
 
+	/**
+	 * Uzyskanie referencji na koniec krawędzi skierowanej.
+	 */
 	@Override
 	public RemoteVertex getDest() throws RemoteException {
 		return v2;
 	}
 
+	/**
+	 * Przeliczenie kolor.
+	 */
 	@Override
 	public void computeColor() throws RemoteException {
 		color = (int)(255.0*((double)(level - graph.getMinEdge().getLevel())/(double)(graph.getMaxEdge().getLevel() - graph.getMinEdge().getLevel())));

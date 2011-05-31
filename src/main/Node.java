@@ -17,6 +17,10 @@ import main.remote.RemoteGraph;
 import main.remote.RemoteServer;
 import main.remote.RemoteVertex;
 
+/**
+ * Reperezentuje lokalny fragment grafu, czyli zbiór wierczhołków, który każdy z nich ma zbiór
+ * krawędzi skierowanych.
+ */
 public class Node extends UnicastRemoteObject implements Serializable, RemoteGraph {
 	private static final long serialVersionUID = 275245875093789520L;
 	private static final Logger logger = Logger.getLogger(Node.class);

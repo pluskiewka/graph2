@@ -23,19 +23,34 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 		this.edges = new LinkedList<RemoteEdge>();
 	}
 	
+	/**
+	 * Pobranie unikatowego w skali całego grafu identyfikatora wierzchołka.
+	 */
+	@Override
 	public Integer getId() {
 		return id;
 	}
 	
+	/**
+	 * Uzyskanie referencji na graf lokalny.
+	 */
+	@Override
 	public RemoteGraph getGraph() {
 		return graph;
 	}
 	
+	/**
+	 * Uzyskanie listy krawędzi skierowanych wychodzących z tego wierzchołka.
+	 */
 	@Override
 	public List<RemoteEdge> getEdges() throws RemoteException {
 		return edges;
 	}
 	
+	/**
+	 * Dodanie nowej krawędzi skierowanej do zbioru krawędzi skierowanych, wychodzących
+	 * z tego wierzchołka.
+	 */
 	@Override
 	public RemoteEdge newEdge(RemoteVertex vertex, Integer level) throws RemoteException {
 		RemoteEdge edge = new Edge(graph, this, vertex, level);
@@ -43,6 +58,9 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 		return edge;
 	}
 	
+	/**
+	 * Przeliczanie wartości koloru każdej krawędzi skierowanej wychodzącej z tego wierzchołka.
+	 */
 	@Override
 	public void computeColor() throws RemoteException {
 		for(RemoteEdge edge : edges) {
@@ -50,13 +68,21 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 		}
 	}
 	
+	/**
+	 * Przeszkuwanie zbioru krawędzie skierowanych, wychodzących z tego wierzchołka,
+	 * w celu ustalenia minimalnej.
+	 */
 	@Override
 	public void computeMin() throws RemoteException {
 		for(RemoteEdge edge : edges) {
 			graph.setMin(edge);
 		}
 	}
-	
+
+	/**
+	 * Przeszkuwanie zbioru krawędzie skierowanych, wychodzących z tego wierzchołka,
+	 * w celu ustalenia maksymalnej.
+	 */
 	@Override
 	public void computeMax() throws RemoteException {
 		for(RemoteEdge edge : edges) {

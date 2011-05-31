@@ -13,6 +13,9 @@ import main.remote.RemoteVertex;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+/**
+ * Autowypełnianie grafu i testowanie poprawności.
+ */
 public class Auto {
 
 	private static final Logger logger = Logger.getLogger(Client.class);
@@ -71,7 +74,7 @@ public class Auto {
 			}
 			
 			for(RemoteEdge edge : edges) {
-				System.err.println((int)255.0*((double)edge.getLevel()-minLevel)/(double)(maxLevel - minLevel) + " vs. "+ edge.getColor());
+				System.err.println((int)(255.0*((double)edge.getLevel()-minLevel)/(double)(maxLevel - minLevel)) + " vs. "+ edge.getColor());
 			}
 			
 		} catch (Exception e) {

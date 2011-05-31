@@ -17,6 +17,10 @@ import main.remote.RemoteGraph;
 import main.remote.RemoteServer;
 import main.remote.RemoteVertex;
 
+/**
+ * Obiekty tej klas intefejsem przeypominają graf, w rzeczywistości stanowią proxy dla całości
+ * grafu, który jest rozproszony po węzła, i dopiero tam są rzeczywiste informacje o grafie.
+ */
 public class Server extends UnicastRemoteObject implements Serializable, RemoteServer, RemoteGraph {
 	private static final long serialVersionUID = 1605997964417190854L;
 	private static final Logger logger = Logger.getLogger(Server.class);

@@ -22,8 +22,8 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 	private static final Logger logger = Logger.getLogger(Server.class);
 
 	static {
-		System.setProperty("java.security.policy", "policy.properties");
-		PropertyConfigurator.configure("logger.log4j.properties");
+		System.setProperty("java.security.policy", "cfg/policy.properties");
+		PropertyConfigurator.configure("cfg/logger.log4j.properties");
 		
 		if (System.getSecurityManager() == null) {
 		    System.setSecurityManager(new SecurityManager());
@@ -37,6 +37,13 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 	}
 	
 	public static void main(String []args) {
+		if(args.length != 1) {
+			System.err.println("Usage: java main/Server <hostname>");
+			System.exit(-1);
+		}
+		
+		System.setProperty("java.rmi.server.hostname", args[0]);
+		
 		try {
 			Naming.rebind("Graph", new Server());
 			logger.info("Graph ready");

@@ -23,8 +23,8 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 	private static RemoteServer server;
 	
 	static {
-		System.setProperty("java.security.policy", "policy.properties");
-		PropertyConfigurator.configure("logger.log4j.properties");
+		System.setProperty("java.security.policy", "cfg/policy.properties");
+		PropertyConfigurator.configure("cfg/logger.log4j.properties");
 		
 		if (System.getSecurityManager() == null) {
 		    System.setSecurityManager(new SecurityManager());
@@ -34,13 +34,19 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
 		} catch (RemoteException e) {
 			logger.warn(e.toString());
+			System.exit(-1);
 		}
 	}
 	
 	public static void main(String []args) {
 		Node node;
+		
+		if(args.length != 2) {
+			System.err.println("Usage: java main/Node <name> <server>");
+			System.exit(-1);
+		}
+		
 		try {
-
 			try {
 				server = (RemoteServer)Naming.lookup("//"+args[1]+"/Graph");
 			} catch (Exception e) {

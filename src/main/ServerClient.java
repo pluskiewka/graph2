@@ -1,6 +1,7 @@
 package main;
 
 import java.rmi.Naming;
+
 import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
@@ -9,17 +10,13 @@ import org.apache.log4j.PropertyConfigurator;
 import main.gui.MainFrame;
 import main.remote.RemoteGraph;
 
-public class Client {
-	private static final Logger logger = Logger.getLogger(Client.class);
+public class ServerClient {
+	private static final Logger logger = Logger.getLogger(ServerClient.class);
 	
 	static {
 		System.setProperty("java.security.policy", "cfg/policy.properties");
 		PropertyConfigurator.configure("cfg/logger.log4j.properties");
 		
-		if (System.getSecurityManager() == null) {
-		    System.setSecurityManager(new SecurityManager());
-		}
-
 		try {
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
 		} catch (Exception e) {
@@ -28,21 +25,21 @@ public class Client {
 	}
 	
 	public static void main(String []args) {
-		RemoteGraph graph;
-		
-		if(args.length != 2) {
-			System.err.println("Usage: java main/Client <hostname> <server>");
+		if(args.length != 1) {
+			System.err.println("Usage: java main/ServerClient <hostname>");
 			System.exit(-1);
 		}
 		
 		System.setProperty("java.rmi.server.hostname", args[0]);
+		RemoteGraph graph;
 		
 		try {
-			graph = (RemoteGraph)Naming.lookup("//"+args[1]+"/Graph");
+			graph = new Server();
+			Naming.rebind("Graph", graph);
+			logger.info("Graph ready");
 			new MainFrame(graph);
 		} catch (Exception e) {
 			logger.error(e.toString());
-			e.printStackTrace();
 		}
 	}
 }

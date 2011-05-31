@@ -59,7 +59,7 @@ public class MainFrame extends JFrame {
 					graph.newVertex(0);
 					vertexTableModel.fireTableDataChanged();
 				} catch (RemoteException e1) {
-					JOptionPane.showMessageDialog(MainFrame.this, e.toString());
+					JOptionPane.showMessageDialog(MainFrame.this, "Błąd w trakcie tworzenia wierzchołka");
 				}
 			}
 		});

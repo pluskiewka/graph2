@@ -52,9 +52,9 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 		
 		try {
 			Naming.rebind("Graph", new Server());
-			logger.info("Graph ready");
 		} catch (Exception e) {
 			logger.error(e.toString());
+			System.exit(-1);
 		}
 	}
 	
@@ -104,33 +104,49 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 	@Override
 	public RemoteEdge newEdge(RemoteVertex v1, RemoteVertex v2, Integer level) throws RemoteException {
 		RemoteEdge edge = v1.getGraph().newEdge(v1, v2, level);
+		boolean t = false;
 		
 		if(minEdge == null && maxEdge == null) {
 			minEdge = edge;
 			maxEdge = edge;
 		} else {
-			if(level < minEdge.getLevel()) {
-				minEdge = edge;
-				this.computeColor();
-			} else if(level > maxEdge.getLevel()) {
-				maxEdge = edge;
-				this.computeColor();
-			} else {
-				edge.computeColor();
+			synchronized(minEdge) {
+			synchronized(maxEdge) {
+				
+				if(level < minEdge.getLevel()) {
+					minEdge = edge;
+					t = true;
+				} else if(level > maxEdge.getLevel()) {
+					maxEdge = edge;
+					t = true;
+				} else {
+					t = false;
+				}
+				
+			}
 			}
 		}
+		
+		if(t)
+			this.computeColor();
+		else
+			edge.computeColor();
 		
 		return edge;
 	}
 
 	@Override
-	public RemoteEdge getMaxEdge() throws RemoteException {
-		return maxEdge;
+	public Integer getMaxEdgeLength() throws RemoteException {
+		synchronized(maxEdge) {
+			return maxEdge.getLevel();
+		}
 	}
 
 	@Override
-	public RemoteEdge getMinEdge() throws RemoteException {
-		return minEdge;
+	public Integer getMinEdgeLength() throws RemoteException {
+		synchronized(minEdge) {
+			return minEdge.getLevel();
+		}
 	}
 
 	@Override
@@ -178,29 +194,57 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 		if(edge.getLevel().equals(level))
 			return;
 		
-		if((minEdge.equals(edge) && level < edge.getLevel()) || (maxEdge.equals(edge) && level > edge.getLevel())) {
-			edge.getGraph().setLevel(edge, level);
-			edge.computeColor();
-		} else if(minEdge.equals(edge) && level > edge.getLevel()){
-			edge.getGraph().setLevel(edge, level);
-			this.computeMin();
-			this.computeColor();
-		} else if(maxEdge.equals(edge) && level < edge.getLevel()) {
-			edge.getGraph().setLevel(edge, level);
-			this.computeMax();
-			this.computeColor();
-		} else if(level > maxEdge.getLevel()) {
-			edge.getGraph().setLevel(edge, level);
-			maxEdge = edge;
-			this.computeColor();
-		} else if(level < minEdge.getLevel()) {
-			edge.getGraph().setLevel(edge, level);
-			minEdge = edge;
-			this.computeColor();
-		} else {
-			edge.getGraph().setLevel(edge, level);
-			edge.computeColor();
+		int min = minEdge.getLevel(), max = maxEdge.getLevel(), current = edge.getLevel();
+		boolean tmin = false, tmax = false, tcolor = false; 
+		
+		synchronized(minEdge) {
+		synchronized(maxEdge) {
+			
+			/* Krawędź jest jedną z granicznych i zmiana jej wagi spowoduje powiększenie zakresu wag,
+			 * czyli krawędź nadal będzie jedną z granicznych. */
+			if((minEdge.equals(edge) && level < current) || (maxEdge.equals(edge) && level > current)) {
+				edge.getGraph().setLevel(edge, level);
+				tcolor = true;
+				
+			/* Krawędź jest minimalną krawędzią i nowa wartość powoduje zawężenie zakresu wag. */
+			} else if(minEdge.equals(edge) && level > current){
+				edge.getGraph().setLevel(edge, level);
+				tmin = true;
+				tcolor = true;
+				
+			/* Krawędź jest maksymalną krawędzią i nowa wartość powoduje zawężenie zakresu wag. */
+			} else if(maxEdge.equals(edge) && level < current) {
+				edge.getGraph().setLevel(edge, level);
+				tmax = true;
+				tcolor = true;
+				
+			/* Krawędź nie jest krawędzią skrajną, ale nowa wartość podowuje powiększenie zakresu wag. */
+			} else if(level > max) {
+				edge.getGraph().setLevel(edge, level);
+				maxEdge = edge;
+				tcolor = true;
+				
+			/* Krawędź nie jest krawędzią skrajną, ale nowa wartość podowuje powiększenie zakresu wag. */
+			} else if(level < min) {
+				edge.getGraph().setLevel(edge, level);
+				minEdge = edge;
+				tcolor = true;
+				
+			/* Nie powoduje żadnych zmian, po prostu ustalamy wartość wagi krawędzi. */
+			} else {
+				edge.getGraph().setLevel(edge, level);
+			}
 		}
+		}
+		
+		if(tmin)
+			this.computeMin();
+		if(tmax)
+			this.computeMax();
+		if(tcolor)
+			this.computeColor();
+		else
+			edge.computeColor();
 	}
 
 	@Override

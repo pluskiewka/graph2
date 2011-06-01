@@ -41,7 +41,7 @@ public class Client {
 			new MainFrame(graph);
 		} catch (Exception e) {
 			logger.error(e.toString());
-			e.printStackTrace();
+			System.exit(-1);
 		}
 	}
 }

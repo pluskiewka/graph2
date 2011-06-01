@@ -34,8 +34,8 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	 * @throws RemoteException 
 	 */
 	@Override
-	public RemoteEdge getMinEdge() throws RemoteException {
-		return graph.getMinEdge();
+	public Integer getMinEdgeLength() throws RemoteException {
+		return graph.getMinEdgeLength();
 	}
 	
 	/**
@@ -43,8 +43,8 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	 * @throws RemoteException 
 	 */
 	@Override
-	public RemoteEdge getMaxEdge() throws RemoteException {
-		return graph.getMaxEdge();
+	public Integer getMaxEdgeLength() throws RemoteException {
+		return graph.getMaxEdgeLength();
 	}
 
 	/**
@@ -64,7 +64,9 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	public void computeColor() throws RemoteException {
 		synchronized(vertexes) {
 			for(final RemoteVertex vertex : vertexes) {
+				
 				new Thread(new Runnable(){
+					
 					@Override
 					public void run() {
 						try {
@@ -73,7 +75,9 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 							logger.error(e.toString());
 						}
 					}
+					
 				}).start();
+				
 			}
 		}
 	}
@@ -87,7 +91,9 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	public void computeMin() throws RemoteException {
 		synchronized(vertexes) {
 			for(final RemoteVertex vertex : vertexes) {
+				
 				new Thread(new Runnable() {
+					
 					@Override
 					public void run() {
 						try {
@@ -96,7 +102,9 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 							logger.error(e.toString());
 						}
 					}
+					
 				}).start();
+				
 			}
 		}
 	}
@@ -110,7 +118,9 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	public void computeMax() throws RemoteException {
 		synchronized(vertexes) {
 			for(final RemoteVertex vertex : vertexes) {
+				
 				new Thread(new Runnable() {
+					
 					@Override
 					public void run() {
 						try {
@@ -119,7 +129,9 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 							logger.error(e.toString());
 						}
 					}
+					
 				}).start();
+				
 			}
 		}
 	}

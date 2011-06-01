@@ -33,14 +33,14 @@ public interface RemoteGraph extends Remote {
 	 * @return
 	 * @throws RemoteException
 	 */
-	public RemoteEdge getMaxEdge() throws RemoteException;
+	public Integer getMaxEdgeLength() throws RemoteException;
 	
 	/**
 	 * Pobranie krawędzi o najmniejszej wadze w danym grafie.
 	 * @return
 	 * @throws RemoteException
 	 */
-	public RemoteEdge getMinEdge() throws RemoteException;
+	public Integer getMinEdgeLength() throws RemoteException;
 	
 	/**
 	 * Przeliczenie wartości koloru w zależności od wagi krawędzi oraz wartości brzegowych zakresu wag.

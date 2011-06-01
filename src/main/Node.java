@@ -34,11 +34,11 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 		    System.setSecurityManager(new SecurityManager());
 		}
 		
-//		try {
-//			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
-//		} catch (RemoteException e) {
-//			logger.warn(e.toString());
-//		}
+		try {
+			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+		} catch (RemoteException e) {
+			logger.warn(e.toString());
+		}
 	}
 	
 	public static void main(String []args) {
@@ -59,7 +59,6 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 			
 			node = new Node(server);
 			server.registerGraph(node);
-			logger.info("Node ready");
 		} catch (Exception e) {
 			logger.error(e.toString());
 			e.printStackTrace();
@@ -74,27 +73,22 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 
 	@Override
 	public RemoteVertex newVertex(Integer id) throws RemoteException {
-		RemoteVertex v = localGraph.newVertex(id);
-		logger.info("New vertex " + v.getName());
-		return v;
+		return localGraph.newVertex(id);
 	}
 
 	@Override
-	public RemoteEdge newEdge(RemoteVertex v1, RemoteVertex v2, Integer level)
-			throws RemoteException {
-		RemoteEdge e = localGraph.newEdge(v1, v2, level);
-		logger.info("New edge " + e.getName());
-		return e;
+	public RemoteEdge newEdge(RemoteVertex v1, RemoteVertex v2, Integer level) throws RemoteException {
+		return localGraph.newEdge(v1, v2, level);
 	}
 
 	@Override
-	public RemoteEdge getMaxEdge() throws RemoteException {
-		return localGraph.getMaxEdge();
+	public Integer getMaxEdgeLength() throws RemoteException {
+		return localGraph.getMaxEdgeLength();
 	}
 
 	@Override
-	public RemoteEdge getMinEdge() throws RemoteException {
-		return localGraph.getMinEdge();
+	public Integer getMinEdgeLength() throws RemoteException {
+		return localGraph.getMinEdgeLength();
 	}
 
 	@Override
@@ -125,8 +119,6 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 	@Override
 	public void setLevel(RemoteEdge edge, Integer level) throws RemoteException {
 		localGraph.setLevel(edge, level);
-		logger.info("Set edge " + edge.getName() + "level to " + level
-				+ "\nMin: " + localGraph.getMinEdge().getName() + ", Max: " + localGraph.getMaxEdge().getName());
 	}
 
 	@Override

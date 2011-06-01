@@ -88,7 +88,7 @@ public class Edge extends UnicastRemoteObject implements Serializable, RemoteEdg
 			level = this.level.get();
 		}
 		synchronized(color) {
-			color.set((int)(255.0*((double)(level - graph.getMinEdge().getLevel())/(double)(graph.getMaxEdge().getLevel() - graph.getMinEdge().getLevel()))));
+			color.set((int)(255.0*((double)(level - graph.getMinEdgeLength())/(double)(graph.getMaxEdgeLength() - graph.getMinEdgeLength()))));
 		}
 	}
 

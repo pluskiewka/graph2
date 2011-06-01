@@ -34,11 +34,11 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 		    System.setSecurityManager(new SecurityManager());
 		}
 		
-		try {
-			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
-		} catch (RemoteException e) {
-			logger.warn(e.toString());
-		}
+//		try {
+//			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+//		} catch (RemoteException e) {
+//			logger.warn(e.toString());
+//		}
 	}
 	
 	public static void main(String []args) {
@@ -57,7 +57,7 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 				System.exit(-1);
 			} 
 			
-			node = new Node();
+			node = new Node(server);
 			server.registerGraph(node);
 			logger.info("Node ready");
 		} catch (Exception e) {
@@ -68,8 +68,8 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 	
 	private final RemoteGraph localGraph;
 	
-	public Node() throws RemoteException {
-		this.localGraph = new Graph();
+	public Node(RemoteGraph graph) throws RemoteException {
+		this.localGraph = new Graph(graph);
 	}
 
 	@Override

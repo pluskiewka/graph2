@@ -6,7 +6,7 @@ import java.rmi.RemoteException;
 /**
  * Interfejs zastrzeżony tylko dla implementacji serwera, wymagany przez węzły.
  */
-public interface RemoteServer extends Remote{
+public interface RemoteServer extends Remote, RemoteGraph {
 	/**
 	 * Rejestracja nowego węzła obliczającego.
 	 * @param graph

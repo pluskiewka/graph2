@@ -18,7 +18,8 @@ public class AllEdgeTableModel extends DefaultTableModel {
 	public AllEdgeTableModel(RemoteGraph graph) throws RemoteException {
 		this.graph = graph;
 		this.edges = new LinkedList<RemoteEdge>();
-		for(RemoteVertex vertex : graph.getVertexes()) {
+		List<RemoteVertex> vertexes = graph.getVertexes();
+		for(RemoteVertex vertex : vertexes) {
 			edges.addAll(vertex.getEdges());
 		}
 	}

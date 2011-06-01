@@ -3,6 +3,7 @@ package main.object;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import main.remote.RemoteEdge;
 import main.remote.RemoteGraph;
@@ -13,13 +14,14 @@ public class Edge extends UnicastRemoteObject implements Serializable, RemoteEdg
 	
 	private final RemoteGraph graph;
 	private final RemoteVertex v1, v2;
-	private int level, color;
+	private AtomicInteger level, color;
 	
-	public Edge(RemoteGraph graph, RemoteVertex v1, RemoteVertex v2, int level) throws RemoteException {
+	public Edge(RemoteGraph graph, RemoteVertex v1, RemoteVertex v2, Integer level) throws RemoteException {
 		this.graph = graph;
 		this.v1 = v1;
 		this.v2 = v2;
-		this.level = level;
+		this.level = new AtomicInteger(level);
+		this.color = new AtomicInteger(0);
 	}
 	
 	/**
@@ -35,7 +37,9 @@ public class Edge extends UnicastRemoteObject implements Serializable, RemoteEdg
 	 */
 	@Override
 	public Integer getLevel() {
-		return level;
+		synchronized(level) {
+			return level.get();
+		}
 	}
 	
 	/**
@@ -43,7 +47,9 @@ public class Edge extends UnicastRemoteObject implements Serializable, RemoteEdg
 	 */
 	@Override
 	public void setLevel(Integer level) {
-		this.level = level;
+		synchronized(level) {
+			this.level.set(level);
+		}
 	}
 	
 	/**
@@ -51,7 +57,9 @@ public class Edge extends UnicastRemoteObject implements Serializable, RemoteEdg
 	 */
 	@Override
 	public Integer getColor() {
-		return color;
+		synchronized(color) {
+			return color.get();
+		}
 	}
 
 	/**
@@ -71,11 +79,17 @@ public class Edge extends UnicastRemoteObject implements Serializable, RemoteEdg
 	}
 
 	/**
-	 * Przeliczenie kolor.
+	 * Przeliczenie koloru.
 	 */
 	@Override
 	public void computeColor() throws RemoteException {
-		color = (int)(255.0*((double)(level - graph.getMinEdge().getLevel())/(double)(graph.getMaxEdge().getLevel() - graph.getMinEdge().getLevel())));
+		int level;
+		synchronized(this.level) {
+			level = this.level.get();
+		}
+		synchronized(color) {
+			color.set((int)(255.0*((double)(level - graph.getMinEdge().getLevel())/(double)(graph.getMaxEdge().getLevel() - graph.getMinEdge().getLevel()))));
+		}
 	}
 
 	@Override

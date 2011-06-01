@@ -3,6 +3,7 @@ package main.object;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	public Vertex(RemoteGraph graph, int id) throws RemoteException {
 		this.graph = graph;
 		this.id = id;
-		this.edges = new LinkedList<RemoteEdge>();
+		this.edges = Collections.synchronizedList(new LinkedList<RemoteEdge>());
 	}
 	
 	/**
@@ -54,7 +55,9 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	@Override
 	public RemoteEdge newEdge(RemoteVertex vertex, Integer level) throws RemoteException {
 		RemoteEdge edge = new Edge(graph, this, vertex, level);
-		edges.add(edge);
+		synchronized(edges) {
+			edges.add(edge);
+		}
 		return edge;
 	}
 	
@@ -63,8 +66,10 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	 */
 	@Override
 	public void computeColor() throws RemoteException {
-		for(RemoteEdge edge : edges) {
-			edge.computeColor();
+		synchronized(edges) {
+			for(RemoteEdge edge : edges) {
+				edge.computeColor();
+			}
 		}
 	}
 	
@@ -74,8 +79,10 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	 */
 	@Override
 	public void computeMin() throws RemoteException {
-		for(RemoteEdge edge : edges) {
-			graph.setMin(edge);
+		synchronized(edges) {
+			for(RemoteEdge edge : edges) {
+				graph.setMin(edge);
+			}
 		}
 	}
 
@@ -85,8 +92,10 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	 */
 	@Override
 	public void computeMax() throws RemoteException {
-		for(RemoteEdge edge : edges) {
-			graph.setMax(edge);
+		synchronized(edges) {
+			for(RemoteEdge edge : edges) {
+				graph.setMax(edge);
+			}
 		}
 	}
 	

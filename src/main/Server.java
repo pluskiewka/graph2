@@ -6,8 +6,10 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -57,105 +59,158 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 	}
 	
 	private List<RemoteGraph> graphs;
-	private int currentGraph, next;
+	private AtomicInteger currentGraph, next;
+	private RemoteEdge minEdge, maxEdge;
 	
 	public Server() throws RemoteException {
-		graphs = new LinkedList<RemoteGraph>();
-		currentGraph = 0;
-		next = 0;
+		graphs = Collections.synchronizedList(new LinkedList<RemoteGraph>());
+		currentGraph = new AtomicInteger(0);
+		next = new AtomicInteger(0);
 	}
 	
 	@Override
 	public void registerGraph(RemoteGraph graph) {
-		graphs.add(graph);
-		logger.info("Registered new graph-node");
+		synchronized(graphs) {
+			graphs.add(graph);
+		}
 	}
 
 	@Override
 	public void unregisterGraph(RemoteGraph graph) {
-		graphs.remove(graph);
-		logger.info("Unregistered graph-node");
+		synchronized(graphs) {
+			graphs.remove(graph);
+		}
 	}
 
 	@Override
 	public RemoteVertex newVertex(Integer id) throws RemoteException {
-		currentGraph = (currentGraph +1) % graphs.size();
-		RemoteVertex v = graphs.get(currentGraph).newVertex(next++);
-		logger.info("New vertex " + v.getName());
-		return v;
+		RemoteVertex vertex;
+		RemoteGraph graph;
+		
+		synchronized(graphs) {
+			synchronized(currentGraph) {
+				currentGraph.set((currentGraph.get() +1) % graphs.size());
+				graph = graphs.get(currentGraph.get());
+			}
+		}
+		
+		synchronized(next) {
+			vertex = graph.newVertex(next.incrementAndGet());
+		}
+		
+		return vertex;
 	}
 
 	@Override
-	public RemoteEdge newEdge(RemoteVertex v1, RemoteVertex v2, Integer level)
-			throws RemoteException {
-		RemoteEdge e = v1.getGraph().newEdge(v1, v2, level);
-		logger.info("New edge " + e.getName());
-		return e;
+	public RemoteEdge newEdge(RemoteVertex v1, RemoteVertex v2, Integer level) throws RemoteException {
+		RemoteEdge edge = v1.getGraph().newEdge(v1, v2, level);
+		
+		if(minEdge == null && maxEdge == null) {
+			minEdge = edge;
+			maxEdge = edge;
+		} else {
+			if(level < minEdge.getLevel()) {
+				minEdge = edge;
+				this.computeColor();
+			} else if(level > maxEdge.getLevel()) {
+				maxEdge = edge;
+				this.computeColor();
+			} else {
+				edge.computeColor();
+			}
+		}
+		
+		return edge;
 	}
 
 	@Override
 	public RemoteEdge getMaxEdge() throws RemoteException {
-		RemoteEdge edge = null, tmp = null;
-		for(RemoteGraph graph : graphs) {
-			tmp = graph.getMaxEdge();
-			if(edge == null || tmp.getLevel() > edge.getLevel())
-				edge = tmp;
-		}
-		return edge;
+		return maxEdge;
 	}
 
 	@Override
 	public RemoteEdge getMinEdge() throws RemoteException {
-		RemoteEdge edge = null, tmp = null;
-		for(RemoteGraph graph : graphs) {
-			tmp = graph.getMinEdge();
-			if(edge == null || tmp.getLevel() < edge.getLevel())
-				edge = tmp;
-		}
-		return edge;
+		return minEdge;
 	}
 
 	@Override
 	public void computeColor() throws RemoteException {
-		for(RemoteGraph graph : graphs)
-			graph.computeColor();
+		synchronized(graphs) {
+			for(RemoteGraph graph : graphs)
+				graph.computeColor();
+		}
 	}
 
 	@Override
 	public void computeMin() throws RemoteException {
-		for(RemoteGraph graph : graphs)
-			graph.computeMin();
+		synchronized(graphs) {
+			for(RemoteGraph graph : graphs)
+				graph.computeMin();
+		}
 	}
 
 	@Override
 	public void computeMax() throws RemoteException {
-		for(RemoteGraph graph : graphs)
-			graph.computeMax();
+		synchronized(graphs) {
+			for(RemoteGraph graph : graphs)
+				graph.computeMax();
+		}
 	}
 
 	@Override
 	public void setMin(RemoteEdge edge) throws RemoteException {
-		edge.getGraph().setMin(edge);
+		synchronized(minEdge) {
+			if(edge.getLevel() < minEdge.getLevel())
+				minEdge = edge;
+		}
 	}
 
 	@Override
 	public void setMax(RemoteEdge edge) throws RemoteException {
-		edge.getGraph().setMax(edge);
+		synchronized(maxEdge) {
+			if(edge.getLevel() > maxEdge.getLevel())
+				maxEdge = edge;
+		}
 	}
 
 	@Override
 	public void setLevel(RemoteEdge edge, Integer level) throws RemoteException {
-		edge.getGraph().setLevel(edge, level);
-		logger.info("Set edge " + edge.getName() + "level to " + level
-				+ "\nMin: " + this.getMinEdge().getName() + ", Max: " + this.getMaxEdge().getName());
+		if(edge.getLevel().equals(level))
+			return;
+		
+		if((minEdge.equals(edge) && level < edge.getLevel()) || (maxEdge.equals(edge) && level > edge.getLevel())) {
+			edge.getGraph().setLevel(edge, level);
+			edge.computeColor();
+		} else if(minEdge.equals(edge) && level > edge.getLevel()){
+			edge.getGraph().setLevel(edge, level);
+			this.computeMin();
+			this.computeColor();
+		} else if(maxEdge.equals(edge) && level < edge.getLevel()) {
+			edge.getGraph().setLevel(edge, level);
+			this.computeMax();
+			this.computeColor();
+		} else if(level > maxEdge.getLevel()) {
+			edge.getGraph().setLevel(edge, level);
+			maxEdge = edge;
+			this.computeColor();
+		} else if(level < minEdge.getLevel()) {
+			edge.getGraph().setLevel(edge, level);
+			minEdge = edge;
+			this.computeColor();
+		} else {
+			edge.getGraph().setLevel(edge, level);
+			edge.computeColor();
+		}
 	}
 
 	@Override
 	public List<RemoteVertex> getVertexes() throws RemoteException {
 		List<RemoteVertex> vertexes = new LinkedList<RemoteVertex>();
 		
-		for(RemoteGraph graph : graphs)
-			vertexes.addAll(graph.getVertexes());
+		synchronized(graphs) {
+			for(RemoteGraph graph : graphs)
+				vertexes.addAll(graph.getVertexes());
+		}
 		
 		return vertexes;
 	}

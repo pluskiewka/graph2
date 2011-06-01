@@ -3,6 +3,7 @@ package main.object;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,27 +21,30 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	private static final long serialVersionUID = -4380588331184967314L;
 	private static final Logger logger = Logger.getLogger(Graph.class);
 	
+	private final RemoteGraph graph;
 	private List<RemoteVertex> vertexes;
-	private RemoteEdge minEdge, maxEdge;
 	
-	public Graph() throws RemoteException {
-		this.vertexes = new LinkedList<RemoteVertex>();
+	public Graph(RemoteGraph graph) throws RemoteException {
+		this.graph = graph;
+		this.vertexes = Collections.synchronizedList(new LinkedList<RemoteVertex>());
 	}
 
 	/**
-	 * Zwraca lokalną, minimalną krawędź.
+	 * Zwraca minimalną krawędź w całym grafie.
+	 * @throws RemoteException 
 	 */
 	@Override
-	public RemoteEdge getMinEdge() {
-		return minEdge;
+	public RemoteEdge getMinEdge() throws RemoteException {
+		return graph.getMinEdge();
 	}
 	
 	/**
-	 * Zwraca lokalną, maksymalną krawędź.
+	 * Zwraca maksymalną krawędź w całym grafie.
+	 * @throws RemoteException 
 	 */
 	@Override
-	public RemoteEdge getMaxEdge() {
-		return maxEdge;
+	public RemoteEdge getMaxEdge() throws RemoteException {
+		return graph.getMaxEdge();
 	}
 
 	/**
@@ -58,17 +62,19 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	 */
 	@Override
 	public void computeColor() throws RemoteException {
-		for(final RemoteVertex vertex : vertexes) {
-			new Thread(new Runnable(){
-				@Override
-				public void run() {
-					try {
-						vertex.computeColor();
-					} catch (RemoteException e) {
-						logger.error(e.toString());
+		synchronized(vertexes) {
+			for(final RemoteVertex vertex : vertexes) {
+				new Thread(new Runnable(){
+					@Override
+					public void run() {
+						try {
+							vertex.computeColor();
+						} catch (RemoteException e) {
+							logger.error(e.toString());
+						}
 					}
-				}
-			}).start();
+				}).start();
+			}
 		}
 	}
 	
@@ -79,17 +85,19 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	 */
 	@Override
 	public void computeMin() throws RemoteException {
-		for(final RemoteVertex vertex : vertexes) {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						vertex.computeMin();
-					} catch (RemoteException e) {
-						logger.error(e.toString());
+		synchronized(vertexes) {
+			for(final RemoteVertex vertex : vertexes) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							vertex.computeMin();
+						} catch (RemoteException e) {
+							logger.error(e.toString());
+						}
 					}
-				}
-			}).start();
+				}).start();
+			}
 		}
 	}
 
@@ -100,17 +108,19 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	 */
 	@Override
 	public void computeMax() throws RemoteException {
-		for(final RemoteVertex vertex : vertexes) {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						vertex.computeMax();
-					} catch (RemoteException e) {
-						logger.error(e.toString());
+		synchronized(vertexes) {
+			for(final RemoteVertex vertex : vertexes) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							vertex.computeMax();
+						} catch (RemoteException e) {
+							logger.error(e.toString());
+						}
 					}
-				}
-			}).start();
+				}).start();
+			}
 		}
 	}
 	
@@ -119,10 +129,7 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	 */
 	@Override
 	public void setMin(RemoteEdge edge) throws RemoteException {
-		synchronized(minEdge) {
-			if(edge.getLevel() < minEdge.getLevel())
-				minEdge = edge;
-		}
+		graph.setMin(edge);
 	}
 	
 	/**
@@ -130,10 +137,7 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	 */
 	@Override
 	public void setMax(RemoteEdge edge) throws RemoteException {
-		synchronized(maxEdge) {
-			if(edge.getLevel() > maxEdge.getLevel())
-				maxEdge = edge;
-		}
+		graph.setMax(edge);
 	}
 	
 	/**
@@ -142,32 +146,18 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	@Override
 	public RemoteVertex newVertex(Integer id) throws RemoteException {
 		RemoteVertex v = new Vertex(this, id);
-		vertexes.add(v);
+		synchronized(vertexes) {
+			vertexes.add(v);
+		}
 		return v;
 	}
 	
 	/**
-	 * Dodanie nowej krawędzi do grafu, wraz z ustaleniem wagi oraz kalibracją zakresu wag krawędzie.
+	 * Dodanie nowej krawędzi do grafu, wraz z ustaleniem wagi.
 	 */
 	@Override
 	public RemoteEdge newEdge(RemoteVertex v1, RemoteVertex v2, Integer level) throws RemoteException {
-		RemoteEdge edge = v1.newEdge(v2, level);
-		
-		if(minEdge == null && maxEdge == null) {
-			minEdge = edge;
-			maxEdge = edge;
-		} else {
-			if(level < minEdge.getLevel()) {
-				minEdge = edge;
-				this.computeColor();
-			} else if(level > maxEdge.getLevel()) {
-				maxEdge = edge;
-				this.computeColor();
-			} else {
-				edge.computeColor();
-			}
-		}
-		return edge;
+		return v1.newEdge(v2, level);
 	}
 	
 	/**
@@ -175,32 +165,7 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	 */
 	@Override
 	public void setLevel(RemoteEdge edge, Integer level) throws RemoteException {
-		if(edge.getLevel().equals(level))
-			return;
-		
-		if((minEdge.equals(edge) && level < edge.getLevel()) || (maxEdge.equals(edge) && level > edge.getLevel())) {
-			edge.setLevel(level);
-			edge.computeColor();
-		} else if(minEdge.equals(edge) && level > edge.getLevel()){
-			edge.setLevel(level);
-			this.computeMin();
-			this.computeColor();
-		} else if(maxEdge.equals(edge) && level < edge.getLevel()) {
-			edge.setLevel(level);
-			this.computeMax();
-			this.computeColor();
-		} else if(level > maxEdge.getLevel()) {
-			edge.setLevel(level);
-			maxEdge = edge;
-			this.computeColor();
-		} else if(level < minEdge.getLevel()) {
-			edge.setLevel(level);
-			minEdge = edge;
-			this.computeColor();
-		} else {
-			edge.setLevel(level);
-			edge.computeColor();
-		}
+		edge.setLevel(level);
 	}
 
 }

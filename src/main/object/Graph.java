@@ -70,7 +70,10 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 					@Override
 					public void run() {
 						try {
+							long p1 = System.nanoTime();
 							vertex.computeColor();
+							long p2 = System.nanoTime();
+							logger.info("Compute color finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 						} catch (RemoteException e) {
 							logger.error(e.toString());
 						}
@@ -97,7 +100,10 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 					@Override
 					public void run() {
 						try {
+							long p1 = System.nanoTime();
 							vertex.computeMin();
+							long p2 = System.nanoTime();
+							logger.info("Compute min finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 						} catch (RemoteException e) {
 							logger.error(e.toString());
 						}
@@ -124,7 +130,10 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 					@Override
 					public void run() {
 						try {
+							long p1 = System.nanoTime();
 							vertex.computeMax();
+							long p2 = System.nanoTime();
+							logger.info("Compute max finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 						} catch (RemoteException e) {
 							logger.error(e.toString());
 						}

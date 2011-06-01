@@ -7,12 +7,15 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import main.remote.RemoteEdge;
 import main.remote.RemoteGraph;
 import main.remote.RemoteVertex;
 
 public class Vertex extends UnicastRemoteObject implements Serializable, RemoteVertex {
 	private static final long serialVersionUID = -6300664513616426780L;
+	private static final Logger logger = Logger.getLogger(Vertex.class);
 	
 	private final int id;
 	private final RemoteGraph graph; 
@@ -67,9 +70,12 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	@Override
 	public void computeColor() throws RemoteException {
 		synchronized(edges) {
+			long p1 = System.nanoTime();
 			for(RemoteEdge edge : edges) {
 				edge.computeColor();
 			}
+			long p2 = System.nanoTime();
+			logger.info("Compute color finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 		}
 	}
 	
@@ -80,9 +86,12 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	@Override
 	public void computeMin() throws RemoteException {
 		synchronized(edges) {
+			long p1 = System.nanoTime();
 			for(RemoteEdge edge : edges) {
 				graph.setMin(edge);
 			}
+			long p2 = System.nanoTime();
+			logger.info("Compute min finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 		}
 	}
 
@@ -93,9 +102,12 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	@Override
 	public void computeMax() throws RemoteException {
 		synchronized(edges) {
+			long p1 = System.nanoTime();
 			for(RemoteEdge edge : edges) {
 				graph.setMax(edge);
 			}
+			long p2 = System.nanoTime();
+			logger.info("Compute max finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 		}
 	}
 	

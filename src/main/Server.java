@@ -29,7 +29,7 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 
 	static {
 		System.setProperty("java.security.policy", "cfg/policy.properties");
-		PropertyConfigurator.configure("cfg/logger.log4j.properties");
+		PropertyConfigurator.configure("cfg/server.logger.log4j.properties");
 		
 		if (System.getSecurityManager() == null) {
 		    System.setSecurityManager(new SecurityManager());
@@ -73,6 +73,8 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 		synchronized(graphs) {
 			graphs.add(graph);
 		}
+		
+		logger.info("New node registered");
 	}
 
 	@Override
@@ -80,6 +82,8 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 		synchronized(graphs) {
 			graphs.remove(graph);
 		}
+		
+		logger.info("Node unregistered");
 	}
 
 	@Override
@@ -97,6 +101,8 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 		synchronized(next) {
 			vertex = graph.newVertex(next.incrementAndGet());
 		}
+		
+		logger.info("New vertex " + vertex.getId());
 		
 		return vertex;
 	}
@@ -132,6 +138,8 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 		else
 			edge.computeColor();
 		
+		logger.info("New edge " + edge.getSource().getId() + "-" + edge.getDest().getId());
+		
 		return edge;
 	}
 
@@ -151,41 +159,54 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 
 	@Override
 	public void computeColor() throws RemoteException {
+		long p1 = System.nanoTime();
 		synchronized(graphs) {
 			for(RemoteGraph graph : graphs)
 				graph.computeColor();
 		}
+		long p2 = System.nanoTime();
+		logger.info("Computing color finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 	}
 
 	@Override
 	public void computeMin() throws RemoteException {
+		long p1 = System.nanoTime();
 		synchronized(graphs) {
 			for(RemoteGraph graph : graphs)
 				graph.computeMin();
 		}
+		long p2 = System.nanoTime();
+		logger.info("Computing min finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 	}
 
 	@Override
 	public void computeMax() throws RemoteException {
+		long p1 = System.nanoTime();
 		synchronized(graphs) {
 			for(RemoteGraph graph : graphs)
 				graph.computeMax();
 		}
+		long p2 = System.nanoTime();
+		logger.info("Computing max finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 	}
 
 	@Override
 	public void setMin(RemoteEdge edge) throws RemoteException {
 		synchronized(minEdge) {
-			if(edge.getLevel() < minEdge.getLevel())
+			if(edge.getLevel() < minEdge.getLevel()) {
 				minEdge = edge;
+				logger.info("New min edge " + minEdge.getSource().getId() + "-" + minEdge.getDest().getId());
+			}
 		}
 	}
 
 	@Override
 	public void setMax(RemoteEdge edge) throws RemoteException {
 		synchronized(maxEdge) {
-			if(edge.getLevel() > maxEdge.getLevel())
+			if(edge.getLevel() > maxEdge.getLevel()) {
 				maxEdge = edge;
+				logger.info("New max edge " + maxEdge.getSource().getId() + "-" + maxEdge.getDest().getId());
+			}
 		}
 	}
 
@@ -206,33 +227,40 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 				edge.getGraph().setLevel(edge, level);
 				tcolor = true;
 				
+				logger.info("Enlarge range with the same edge border");
 			/* Krawędź jest minimalną krawędzią i nowa wartość powoduje zawężenie zakresu wag. */
 			} else if(minEdge.equals(edge) && level > current){
 				edge.getGraph().setLevel(edge, level);
 				tmin = true;
 				tcolor = true;
 				
+				logger.info("Min edge is going to change level to higher");
 			/* Krawędź jest maksymalną krawędzią i nowa wartość powoduje zawężenie zakresu wag. */
 			} else if(maxEdge.equals(edge) && level < current) {
 				edge.getGraph().setLevel(edge, level);
 				tmax = true;
 				tcolor = true;
 				
+				logger.info("Max edge is going to change level to lower");
 			/* Krawędź nie jest krawędzią skrajną, ale nowa wartość podowuje powiększenie zakresu wag. */
 			} else if(level > max) {
 				edge.getGraph().setLevel(edge, level);
 				maxEdge = edge;
 				tcolor = true;
 				
+				logger.info("Having new max edge");
 			/* Krawędź nie jest krawędzią skrajną, ale nowa wartość podowuje powiększenie zakresu wag. */
 			} else if(level < min) {
 				edge.getGraph().setLevel(edge, level);
 				minEdge = edge;
 				tcolor = true;
 				
+				logger.info("Having new min edge");
 			/* Nie powoduje żadnych zmian, po prostu ustalamy wartość wagi krawędzi. */
 			} else {
 				edge.getGraph().setLevel(edge, level);
+				
+				logger.info("Only setting new level");
 			}
 		}
 		}

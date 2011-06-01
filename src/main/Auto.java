@@ -22,7 +22,7 @@ public class Auto {
 	
 	static {
 		System.setProperty("java.security.policy", "cfg/policy.properties");
-		PropertyConfigurator.configure("cfg/logger.log4j.properties");
+		PropertyConfigurator.configure("cfg/client.logger.log4j.properties");
 		
 		if (System.getSecurityManager() == null) {
 		    System.setSecurityManager(new SecurityManager());

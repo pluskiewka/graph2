@@ -28,7 +28,7 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 	
 	static {
 		System.setProperty("java.security.policy", "cfg/policy.properties");
-		PropertyConfigurator.configure("cfg/logger.log4j.properties");
+		PropertyConfigurator.configure("cfg/node.logger.log4j.properties");
 		
 		if (System.getSecurityManager() == null) {
 		    System.setSecurityManager(new SecurityManager());
@@ -73,11 +73,15 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 
 	@Override
 	public RemoteVertex newVertex(Integer id) throws RemoteException {
+		logger.info("New vertex " + id);
+		
 		return localGraph.newVertex(id);
 	}
 
 	@Override
 	public RemoteEdge newEdge(RemoteVertex v1, RemoteVertex v2, Integer level) throws RemoteException {
+		logger.info("New  edge " + v1.getId() + "-" + v2.getId());
+		
 		return localGraph.newEdge(v1, v2, level);
 	}
 
@@ -93,17 +97,26 @@ public class Node extends UnicastRemoteObject implements Serializable, RemoteGra
 
 	@Override
 	public void computeColor() throws RemoteException {
+		long p1 = System.nanoTime();
 		localGraph.computeColor();
+		long p2 = System.nanoTime();
+		logger.info("Compute color finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 	}
 
 	@Override
 	public void computeMin() throws RemoteException {
+		long p1 = System.nanoTime();
 		localGraph.computeMin();
+		long p2 = System.nanoTime();
+		logger.info("Compute min finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 	}
 
 	@Override
 	public void computeMax() throws RemoteException {
+		long p1 = System.nanoTime();
 		localGraph.computeMax();
+		long p2 = System.nanoTime();
+		logger.info("Compute max finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 	}
 
 	@Override

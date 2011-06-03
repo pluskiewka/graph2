@@ -62,27 +62,25 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	 */
 	@Override
 	public void computeColor() throws RemoteException {
-		synchronized(vertexes) {
-			for(final RemoteVertex vertex : vertexes) {
-				
-				new Thread(new Runnable(){
-					
-					@Override
-					public void run() {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				synchronized(vertexes) {
+					long p1 = System.nanoTime();
+					for(RemoteVertex vertex : vertexes) {
 						try {
-							long p1 = System.nanoTime();
 							vertex.computeColor();
-							long p2 = System.nanoTime();
-							logger.info("Compute color finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 						} catch (RemoteException e) {
-							logger.error(e.toString());
+							logger.warn(e.toString());
 						}
 					}
-					
-				}).start();
-				
+					long p2 = System.nanoTime();
+					logger.info("Compute color finished in " + Double.toString((double)(p2-p1)/1000000000.0));
+				}
 			}
-		}
+			
+		}).start();
 	}
 	
 	/**
@@ -92,27 +90,25 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	 */
 	@Override
 	public void computeMin() throws RemoteException {
-		synchronized(vertexes) {
-			for(final RemoteVertex vertex : vertexes) {
-				
-				new Thread(new Runnable() {
-					
-					@Override
-					public void run() {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				synchronized(vertexes) {
+					long p1 = System.nanoTime();
+					for(final RemoteVertex vertex : vertexes) {
 						try {
-							long p1 = System.nanoTime();
 							vertex.computeMin();
-							long p2 = System.nanoTime();
-							logger.info("Compute min finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 						} catch (RemoteException e) {
-							logger.error(e.toString());
+							logger.warn(e.toString());
 						}
 					}
-					
-				}).start();
-				
+					long p2 = System.nanoTime();
+					logger.info("Compute min finished in " + Double.toString((double)(p2-p1)/1000000000.0));
+				}
 			}
-		}
+			
+		}).start();
 	}
 
 	/**
@@ -122,27 +118,25 @@ public class Graph extends UnicastRemoteObject implements Serializable, RemoteGr
 	 */
 	@Override
 	public void computeMax() throws RemoteException {
-		synchronized(vertexes) {
-			for(final RemoteVertex vertex : vertexes) {
-				
-				new Thread(new Runnable() {
-					
-					@Override
-					public void run() {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				synchronized(vertexes) {
+					long p1 = System.nanoTime();
+					for(final RemoteVertex vertex : vertexes) {
 						try {
-							long p1 = System.nanoTime();
 							vertex.computeMax();
-							long p2 = System.nanoTime();
-							logger.info("Compute max finished in " + Double.toString((double)(p2-p1)/1000000000.0));
 						} catch (RemoteException e) {
-							logger.error(e.toString());
-						}
+							logger.warn(e.toString());
+						}		
 					}
-					
-				}).start();
-				
+					long p2 = System.nanoTime();
+					logger.info("Compute max finished in " + Double.toString((double)(p2-p1)/1000000000.0));
+				}
 			}
-		}
+			
+		}).start();
 	}
 	
 	/**

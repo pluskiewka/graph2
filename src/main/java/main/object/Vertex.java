@@ -69,14 +69,25 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	 */
 	@Override
 	public void computeColor() throws RemoteException {
-		synchronized(edges) {
-			long p1 = System.nanoTime();
-			for(RemoteEdge edge : edges) {
-				edge.computeColor();
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {	
+				synchronized(edges) {
+					long p1 = System.nanoTime();
+					for(RemoteEdge edge : edges) {
+						try {
+							edge.computeColor();
+						} catch (RemoteException e) {
+							logger.warn(e.toString());
+						}
+					}
+					long p2 = System.nanoTime();
+					logger.info("Compute color finished in " + Double.toString((double)(p2-p1)/1000000000.0));
+				}
 			}
-			long p2 = System.nanoTime();
-			logger.info("Compute color finished in " + Double.toString((double)(p2-p1)/1000000000.0));
-		}
+			
+		}).start();
 	}
 	
 	/**
@@ -85,14 +96,26 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	 */
 	@Override
 	public void computeMin() throws RemoteException {
-		synchronized(edges) {
-			long p1 = System.nanoTime();
-			for(RemoteEdge edge : edges) {
-				graph.setMin(edge);
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				synchronized(edges) {
+					long p1 = System.nanoTime();
+					for(RemoteEdge edge : edges) {
+						try {
+							graph.setMin(edge);
+						} catch (RemoteException e) {
+							logger.warn(e.toString());
+						}
+					}
+					long p2 = System.nanoTime();
+					logger.info("Compute min finished in " + Double.toString((double)(p2-p1)/1000000000.0));
+				}
 			}
-			long p2 = System.nanoTime();
-			logger.info("Compute min finished in " + Double.toString((double)(p2-p1)/1000000000.0));
-		}
+			
+		}).start();
+
 	}
 
 	/**
@@ -101,14 +124,25 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	 */
 	@Override
 	public void computeMax() throws RemoteException {
-		synchronized(edges) {
-			long p1 = System.nanoTime();
-			for(RemoteEdge edge : edges) {
-				graph.setMax(edge);
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				synchronized(edges) {
+					long p1 = System.nanoTime();
+					for(RemoteEdge edge : edges) {
+						try {
+							graph.setMax(edge);
+						} catch (RemoteException e) {
+							logger.warn(e.toString());
+						}
+					}
+					long p2 = System.nanoTime();
+					logger.info("Compute max finished in " + Double.toString((double)(p2-p1)/1000000000.0));
+				}
 			}
-			long p2 = System.nanoTime();
-			logger.info("Compute max finished in " + Double.toString((double)(p2-p1)/1000000000.0));
-		}
+			
+		}).start();
 	}
 	
 	@Override

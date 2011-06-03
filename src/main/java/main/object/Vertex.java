@@ -47,7 +47,7 @@ public class Vertex extends UnicastRemoteObject implements Serializable, RemoteV
 	 * Uzyskanie listy krawędzi skierowanych wychodzących z tego wierzchołka.
 	 */
 	@Override
-	public List<RemoteEdge> getEdges() throws RemoteException {
+	public List<RemoteEdge> getEdges() {
 		return edges;
 	}
 	

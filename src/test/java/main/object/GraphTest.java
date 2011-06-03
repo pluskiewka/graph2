@@ -3,62 +3,51 @@ package main.object;
 import static org.junit.Assert.*;
 
 import java.rmi.RemoteException;
+import java.util.Date;
+import java.util.Random;
 
-import main.Node;
-import main.Server;
-import main.object.Graph;
 import main.remote.RemoteEdge;
+import main.remote.RemoteGraph;
 import main.remote.RemoteVertex;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GraphTest {
 
-	Integer MIN = 2, MAX = 10;
-	Server graph;
-	Node node;
-	RemoteEdge minEdge, maxEdge, edge;
-	Integer id1 = 1, id2 = 2;
-	RemoteVertex v1, v2;
-	Graph g;
-	
-	@BeforeClass
-	public void setUpBeforeClass() throws Exception {
-		graph = new Server();
-		node = new Node(graph);
-		graph.registerGraph(graph);
-	}
+	@Mock RemoteGraph server;
+	Integer minLevel, maxLevel;
+	Graph graph;
 	
 	@Before
 	public void setUp() throws Exception {
-		g = new Graph(graph);
-		v1 = g.newVertex(id1);
-		v2 = g.newVertex(id2);
-		maxEdge = g.newEdge(v1, v2, MAX);
-		minEdge = g.newEdge(v2, v1, MIN);
+		Random rand = new Random(new Date().getTime());
+		minLevel = rand.nextInt();
+		maxLevel = rand.nextInt();
+		if(minLevel > maxLevel) {
+			int t = minLevel;
+			minLevel = maxLevel;
+			maxLevel = t;
+		}
+		server = Mockito.mock(RemoteGraph.class);
+		Mockito.when(server.getMinEdgeLength()).thenReturn(minLevel);
+		Mockito.when(server.getMaxEdgeLength()).thenReturn(maxLevel);
+		graph = new Graph(server);
 	}
 
 	@Test
-	public final void testGetMinEdgeLength() {
-		try {
-			assertEquals(MIN, g.getMinEdgeLength());
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+	public final void testGetMinEdgeLength() throws RemoteException {
+		assertEquals(minLevel, graph.getMinEdgeLength());
 	}
 
 	@Test
-	public final void testGetMaxEdgeLength() {
-		try {
-			assertEquals(MAX, g.getMaxEdgeLength());
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+	public final void testGetMaxEdgeLength() throws RemoteException {
+		assertEquals(maxLevel, graph.getMaxEdgeLength());
 	}
 
 	@Test
@@ -83,57 +72,35 @@ public class GraphTest {
 
 	@Test
 	public final void testSetMin() {
-		try {
-			g.setMin(minEdge);
-			assertEquals(MIN, g.getMinEdgeLength());
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+		fail("Not yet implemented"); // TODO
 	}
 
 	@Test
 	public final void testSetMax() {
-		try {
-			g.setMax(maxEdge);
-			assertEquals(MAX, g.getMaxEdgeLength());
-		} catch(RemoteException e) {
-			e.printStackTrace();
-		}
+		fail("Not yet implemented"); // TODO
 	}
 
 	@Test
-	public final void testNewVertex() {
-		try {
-			Integer id = 0;
-			RemoteVertex v = g.newVertex(id);
-			assertEquals(id, v.getId());
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+	public final void testNewVertex() throws RemoteException {
+		Integer id = 0;
+		RemoteVertex vertex = graph.newVertex(id);
+		assertEquals(id, vertex.getId());
+		assertEquals(new Vertex(graph, id), vertex);
+		assertTrue(graph.getVertexes().size() == 1);
+		assertEquals(vertex, graph.getVertexes().get(0));
 	}
 
 	@Test
-	public final void testNewEdge() {
-		Integer level = 0;
-		try {
-			RemoteEdge e = g.newEdge(v1, v2, level);
-			assertEquals(level, e.getLevel());
-			assertEquals(v1, e.getSource());
-			assertEquals(v2, e.getDest());
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public final void testSetLevel() {
-		Integer level = 1;
-		try {
-			g.setLevel(edge, level);
-			assertEquals(level, edge.getLevel());
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+	public final void testNewEdgeAndSetLevel() throws RemoteException {
+		Integer id = 0, level = 0;
+		RemoteVertex v1 = graph.newVertex(id++);
+		RemoteVertex v2 = graph.newVertex(id++);
+		RemoteEdge edge = graph.newEdge(v1, v2, level);
+		assertTrue(level == edge.getLevel());
+		Random rand = new Random(new Date().getTime());
+		level = rand.nextInt();
+		graph.setLevel(edge, level);
+		assertTrue(level == edge.getLevel());
 	}
 
 }

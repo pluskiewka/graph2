@@ -122,18 +122,24 @@ public class Server extends UnicastRemoteObject implements Serializable, RemoteS
 				if(level < minEdge.getLevel()) {
 					minEdge = edge;
 					t = true;
+					
+					logger.info("Having new min edge");
 				} else if(level > maxEdge.getLevel()) {
 					maxEdge = edge;
 					t = true;
+					
+					logger.info("Having new max edge");
 				} else {
 					t = false;
+					
+					logger.info("Only new edge");
 				}
 				
 			}
 			}
 		}
 		
-		if(t)
+		if(t) 
 			this.computeColor();
 		else
 			edge.computeColor();

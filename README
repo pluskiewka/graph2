@@ -3,18 +3,15 @@ Graph2
 Przy użyciu Java RMI (do rozpraszania obliczeń) oraz Swing'a do wykonania GUI klienta.
 
 Katalogi:
-* bin         - zawiera klasy w Java byte-code'ie, kompilowane przy pomocy cmd/compile.sh
-* cfg         - zawiera konfigurację do uruchomienia aplikacji
-* cmd         - zawiera skrypty do kompilacji i uruchomienia aplikacji
-* doc         - JavaDoc wygenerowany na podstawie komentarzy w kodzie
-* lib         - biblioteki towarzyszące, tutaj: do logowania
-* src         - źródła
+* bin			- zawiera klasy w Java byte-code'ie, kompilowane przy pomocy cmd/compile.sh
+* cfg			- zawiera konfigurację do uruchomienia aplikacji
+* doc		- JavaDoc wygenerowany na podstawie komentarzy w kodzie
+* lib			- biblioteki towarzyszące, tutaj: do logowania i testowania
+* src			- źródła
+* jar			- gotowe aplikacje Java'owe w słoikach.
 
 Kompilacja:
 Przy pomocy cmd/compile.sh.
 
-Programy:
-* main/Server - uruchomienie przy pomocy cmd/server.sh z podaniem adresu IP interfejsu sieciowego, z którego będą podłączane poszczególne node'y
-* main/Node   - uruchomienie przy pomocy cmd/node.sh z podaniem adresu IP serwera, stanowi węzeł grafu
-* main/Client - uruchomienie przy pomocy cmd/client.sh z podaniem adresu IP serwera, dostarcza GUI do obsługi grafu
-* main/Auto   - uruchomienie przy pomocy cmd/auto.sh z podaniem adresu IP serwera, automatycznie tworzy graf i go testuje
+Programy, w katalogu jar, znajdują się pliki *.jar, które przyjmują jako pierwszy argument adres IP. W przypadku
+server.jar, jest to adres IP interfejsu, na którym nasłuchuje serwer. We wszystkich innych, to adres IP serwera.
